@@ -1,0 +1,2 @@
+# kysely-schema-manager
+

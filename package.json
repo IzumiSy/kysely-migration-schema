@@ -1,0 +1,14 @@
+{
+  "name": "kysely-schema-manager",
+  "private": true,
+  "engines": {
+    "node": "22.x"
+  },
+  "keywords": [],
+  "author": "IzumiSy",
+  "license": "ISC",
+  "packageManager": "pnpm@10.13.1",
+  "devDependencies": {
+    "turbo": "^2.5.5"
+  }
+}
