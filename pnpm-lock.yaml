@@ -14,7 +14,7 @@ importers:
 
   examples/basic:
     devDependencies:
-      '@izumisy/kysely-schema-manager':
+      '@izumisy/kysely-migration-schema':
         specifier: workspace:^
         version: link:../../packages/cli
       kysely:

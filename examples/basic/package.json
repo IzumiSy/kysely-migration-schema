@@ -3,6 +3,6 @@
   "private": true,
   "devDependencies": {
     "kysely": "^0.28.3",
-    "@izumisy/kysely-schema-manager": "workspace:^"
+    "@izumisy/kysely-migration-schema": "workspace:^"
   }
 }

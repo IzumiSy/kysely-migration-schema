@@ -1,2 +1,2 @@
-# kysely-schema-manager
+# kysely-migration-schema
 
