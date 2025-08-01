@@ -1,9 +1,4 @@
-import {
-  DatabaseIntrospector,
-  Kysely,
-  PostgresDialect,
-  PostgresIntrospector,
-} from "kysely";
+import { Kysely, PostgresDialect, PostgresIntrospector } from "kysely";
 import { Pool } from "pg";
 import { loadConfig } from "c12";
 import { ConfigType, DialectEnum, configSchema } from "./schema";
