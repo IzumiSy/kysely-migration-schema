@@ -2,7 +2,7 @@
 
 ## Overview
 
-`kysely-migration-schema` is a CLI tool that compares your defined database schema (written in a TypeScript config file) with the current state of your actual database, and generates migration code (diff) for use with [kysely-codegen](https://github.com/RobinBlomberg/kysely-codegen).
+`kysely-migration-schema` is a CLI tool that compares your defined database schema (written in a TypeScript config file) with the current state of your actual database, and generates migration code (diff) for use with [kysely migration](https://www.kysely.dev/docs/migrations).
 
 ## Features
 
@@ -75,7 +75,7 @@ export default {
 kysely-migration-schema
 ```
 
-3. Use the generated migration code together with [kysely-codegen](https://github.com/RobinBlomberg/kysely-codegen).
+3. Use the generated migration code together with kysely.
 
 ## Supported Databases
 
