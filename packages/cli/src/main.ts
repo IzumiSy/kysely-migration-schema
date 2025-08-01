@@ -8,6 +8,7 @@ import { Pool } from "pg";
 import { loadConfig } from "c12";
 import { ConfigType, DialectEnum, configSchema } from "./schema.js";
 import { diffTables, Tables } from "./diff.js";
+import { applyDiff } from "./applyDiff.js";
 
 const main = async () => {
   const loadedConfig = await loadConfig<ConfigType>({
@@ -24,7 +25,7 @@ const main = async () => {
     process.exit(1);
   }
 
-  const introspector = await getIntrospector({
+  const { introspector, db } = await getIntrospector({
     ...parsedConfig.database,
   });
 
@@ -54,8 +55,8 @@ const main = async () => {
     ])
   );
 
-  const diff = diffTables(dbTables, configTables);
-  console.log(JSON.stringify(diff, null, 2));
+  // applyDiffを呼び出してDBに反映
+  await applyDiff(db, diffTables(dbTables, configTables));
 };
 
 const getTablesFromIntrospection = async (
@@ -72,16 +73,16 @@ type GetIntrospectorProps = {
 
 const getIntrospector = async (props: GetIntrospectorProps) => {
   switch (props.dialect) {
-    case "postgres":
-      return new PostgresIntrospector(
-        new Kysely({
-          dialect: new PostgresDialect({
-            pool: new Pool({
-              connectionString: props.connectionString,
-            }),
+    case "postgres": {
+      const db = new Kysely({
+        dialect: new PostgresDialect({
+          pool: new Pool({
+            connectionString: props.connectionString,
           }),
-        })
-      );
+        }),
+      });
+      return { introspector: new PostgresIntrospector(db), db };
+    }
     default:
       throw new Error(`Unsupported dialect: ${props.dialect}`);
   }
