@@ -49,16 +49,20 @@ export type TableDiff = {
   changedTables: ChangedTable[];
 };
 
-export function diffTables(dbTables: Tables, configTables: Tables): TableDiff {
-  const dbTableNames = Object.keys(dbTables);
-  const configTableNames = Object.keys(configTables);
+export function diffTables(props: {
+  current: Tables;
+  ideal: Tables;
+}): TableDiff {
+  const { current: currentTables, ideal: idealTables } = props;
+  const dbTableNames = Object.keys(currentTables);
+  const configTableNames = Object.keys(idealTables);
 
   // 追加テーブル: テーブル名＋カラム定義
   const addedTables = configTableNames
     .filter((t) => !dbTableNames.includes(t))
     .map((table) => ({
       table,
-      columns: configTables[table],
+      columns: idealTables[table],
     }));
 
   // 削除テーブル: テーブル名のみ
@@ -69,8 +73,8 @@ export function diffTables(dbTables: Tables, configTables: Tables): TableDiff {
   // テーブルごとのカラム差分
   const changedTables = dbTableNames.reduce<ChangedTable[]>((acc, table) => {
     if (!configTableNames.includes(table)) return acc;
-    const dbCols = dbTables[table];
-    const configCols = configTables[table];
+    const dbCols = currentTables[table];
+    const configCols = idealTables[table];
     const dbColNames = Object.keys(dbCols);
     const configColNames = Object.keys(configCols);
 

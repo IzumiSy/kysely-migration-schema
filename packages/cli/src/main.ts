@@ -7,7 +7,7 @@ import {
 import { Pool } from "pg";
 import { loadConfig } from "c12";
 import { ConfigType, DialectEnum, configSchema } from "./schema";
-import { diffTables, Tables } from "./diff";
+import { diffTables, TableDef, Tables } from "./diff";
 import { applyDiff } from "./applyDiff";
 
 const main = async () => {
@@ -32,10 +32,8 @@ const main = async () => {
   const tables = await getTablesFromIntrospection(introspector);
 
   // DB側のテーブル情報をTables型に変換
-  const dbTables: Tables = tables.reduce<Tables>((acc, table) => {
-    acc[table.name] = (table.columns ?? []).reduce<
-      Record<string, { type: string }>
-    >((cols, col) => {
+  const dbTables = tables.reduce<Tables>((acc, table) => {
+    acc[table.name] = (table.columns ?? []).reduce<TableDef>((cols, col) => {
       cols[col.name] = { type: col.dataType };
       return cols;
     }, {});
@@ -43,7 +41,7 @@ const main = async () => {
   }, {});
 
   // 設定ファイルのテーブル定義をTables型に変換
-  const configTables: Tables = Object.fromEntries(
+  const configTables = Object.fromEntries(
     Object.entries(parsedConfig.tables).map(([tableName, columns]) => [
       tableName,
       Object.fromEntries(
@@ -56,7 +54,13 @@ const main = async () => {
   );
 
   // applyDiffを呼び出してDBに反映
-  await applyDiff(db, diffTables(dbTables, configTables));
+  await applyDiff(
+    db,
+    diffTables({
+      current: dbTables,
+      ideal: configTables,
+    })
+  );
 };
 
 const getTablesFromIntrospection = async (
