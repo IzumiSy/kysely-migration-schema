@@ -4,12 +4,7 @@ export default {
     connectionString: "postgres://postgres:postgres@localhost:5432/postgres",
   },
   tables: {
-    users: {
-      name: {
-        type: "varchar",
-        length: 255,
-        notNull: true,
-      },
+    members: {
       email: {
         type: "varchar",
         length: 255,

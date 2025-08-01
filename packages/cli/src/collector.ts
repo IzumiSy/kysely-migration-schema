@@ -2,11 +2,10 @@ import {
   CompiledQuery,
   DatabaseConnection,
   QueryResult,
-  Dialect,
   DummyDriver,
 } from "kysely";
 
-class SqlCollectingDriver extends DummyDriver {
+export class SQLCollectingDriver extends DummyDriver {
   constructor(private queries: CompiledQuery[]) {
     super();
   }
@@ -30,15 +29,3 @@ class DummyConnection implements DatabaseConnection {
     // Nothing to do here.
   }
 }
-
-export const wrapDialect = (
-  dialect: Dialect,
-  queries: CompiledQuery[]
-): Dialect => {
-  return {
-    createAdapter: () => dialect.createAdapter(),
-    createDriver: () => new SqlCollectingDriver(queries),
-    createIntrospector: (db) => dialect.createIntrospector(db),
-    createQueryCompiler: () => dialect.createQueryCompiler(),
-  };
-};

@@ -1,23 +1,42 @@
-import { Kysely, PostgresDialect, PostgresIntrospector } from "kysely";
-import { Pool } from "pg";
+import { CompiledQuery, Kysely, PostgresDialect } from "kysely";
 import { DialectEnum } from "./schema";
+import { Pool } from "pg";
+import { SQLCollectingDriver } from "./collector";
 
 export const getIntrospector = async (props: {
-  dialect: DialectEnum;
-  connectionString: string;
+  database: {
+    dialect: DialectEnum;
+    connectionString: string;
+  };
+  plannedQueries: CompiledQuery[];
+  plan: boolean;
 }) => {
-  switch (props.dialect) {
-    case "postgres": {
-      const db = new Kysely({
-        dialect: new PostgresDialect({
+  const getDialect = () => {
+    switch (props.database.dialect) {
+      case "postgres": {
+        return new PostgresDialect({
           pool: new Pool({
-            connectionString: props.connectionString,
+            connectionString: props.database.connectionString,
           }),
-        }),
-      });
-      return { introspector: new PostgresIntrospector(db), db };
+        });
+      }
+      default:
+        throw new Error(`Unsupported dialect: ${props.database.dialect}`);
     }
-    default:
-      throw new Error(`Unsupported dialect: ${props.dialect}`);
-  }
+  };
+
+  const dialect = getDialect();
+  const db = new Kysely({
+    dialect: {
+      createAdapter: () => dialect.createAdapter(),
+      createDriver: () =>
+        props.plan
+          ? new SQLCollectingDriver(props.plannedQueries)
+          : dialect.createDriver(),
+      createIntrospector: (db) => dialect.createIntrospector(db),
+      createQueryCompiler: () => dialect.createQueryCompiler(),
+    },
+  });
+
+  return { introspector: dialect.createIntrospector(db), db };
 };

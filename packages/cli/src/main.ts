@@ -1,4 +1,4 @@
-import { Migrator } from "kysely";
+import { CompiledQuery, Migrator } from "kysely";
 import { loadConfig } from "c12";
 import { ConfigType, configSchema } from "./schema";
 import { diffTables, TableDef, Tables } from "./diff";
@@ -6,13 +6,35 @@ import { createMigrationProvider } from "./migration";
 import { defineCommand, runMain } from "citty";
 import { getIntrospector } from "./introspector";
 import * as pkg from "../package.json";
+import { highlight } from "sql-highlight";
+import { createConsola } from "consola";
+
+const logger = createConsola({
+  // Redirect console output to stderr that helps users to redirect planned SQL queries to a file
+  stdout: process.stderr,
+});
 
 const migrateCmd = defineCommand({
   meta: {
     name: "migrate",
     description: "Run migrations to sync database schema",
   },
-  run: async () => {
+  args: {
+    color: {
+      alias: ["c"],
+      type: "boolean",
+      default: false,
+      description: "Enable colored SQL output",
+    },
+    plan: {
+      alias: ["p"],
+      type: "boolean",
+      default: false,
+      description:
+        "Show the SQL queries that would be executed without running them",
+    },
+  },
+  run: async (ctx) => {
     try {
       const loadedConfig = await loadConfig<ConfigType>({
         name: "kysely-schema",
@@ -24,17 +46,18 @@ const migrateCmd = defineCommand({
         error: parseError,
       } = configSchema.safeParse(loadedConfig.config);
       if (!parseResult) {
-        console.error("Invalid config:", parseError);
+        logger.error(parseError);
         process.exit(1);
       }
 
+      const plannedQueries: CompiledQuery[] = [];
       const { introspector, db } = await getIntrospector({
-        ...parsedConfig.database,
+        database: parsedConfig.database,
+        plan: ctx.args.plan,
+        plannedQueries,
       });
 
       const tables = await introspector.getTables();
-
-      // DB側のテーブル情報をTables型に変換
       const dbTables = tables.reduce<Tables>((acc, table) => {
         acc[table.name] = (table.columns ?? []).reduce<TableDef>(
           (cols, col) => {
@@ -45,8 +68,6 @@ const migrateCmd = defineCommand({
         );
         return acc;
       }, {});
-
-      // 設定ファイルのテーブル定義をTables型に変換
       const configTables = Object.fromEntries(
         Object.entries(parsedConfig.tables).map(([tableName, columns]) => [
           tableName,
@@ -59,32 +80,48 @@ const migrateCmd = defineCommand({
         ])
       );
 
-      const migrationProvider = createMigrationProvider({
-        db,
-        diff: diffTables({
-          current: dbTables,
-          ideal: configTables,
-        }),
+      const diff = diffTables({
+        current: dbTables,
+        ideal: configTables,
       });
       const migrator = new Migrator({
         db,
-        provider: migrationProvider,
+        provider: createMigrationProvider({
+          db,
+          diff,
+        }),
       });
 
       const { results: migrationResults, error: migrationError } =
         await migrator.migrateToLatest();
 
-      migrationResults?.forEach((result) => {
-        if (result.status === "Success") {
-          console.log("migration executed successfully");
-        } else if (result.status === "Error") {
-          console.error(`failed to execute migration: ${migrationError} `);
-        }
-      });
+      if (plannedQueries.length > 0) {
+        plannedQueries.forEach((query) => {
+          process.stdout.write(
+            [
+              `--- (SQL) ${query.queryId.queryId} ---`,
+              `${ctx.args.color ? highlight(query.sql) : query.sql}\n`,
+            ].join("\n")
+          );
+        });
+        logger.info(`Planned ${plannedQueries.length} queries.`);
+      }
+
+      if (migrationResults && migrationResults.length > 0) {
+        migrationResults.forEach((result) => {
+          if (result.status === "Success") {
+            logger.success("Migration executed successfully");
+          } else if (result.status === "Error") {
+            logger.error(`Failed to execute migration: ${migrationError} `);
+          }
+        });
+      } else {
+        logger.info("No migrations to run");
+      }
 
       await db.destroy();
     } catch (error) {
-      console.error("Migration failed:", error);
+      logger.error(error);
       process.exit(1);
     }
   },

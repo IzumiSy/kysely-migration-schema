@@ -29,9 +29,9 @@ importers:
       citty:
         specifier: ^0.1.6
         version: 0.1.6
-      gunshi:
-        specifier: ^0.27.0-alpha.9
-        version: 0.27.0-alpha.10
+      consola:
+        specifier: ^3.4.2
+        version: 3.4.2
       kysely:
         specifier: ^0.28.3
         version: 0.28.3
@@ -41,6 +41,9 @@ importers:
       pg:
         specifier: ^8.16.3
         version: 8.16.3
+      sql-highlight:
+        specifier: ^6.1.0
+        version: 6.1.0
       zod:
         specifier: ^4.0.14
         version: 4.0.14
@@ -426,10 +429,6 @@ packages:
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
-  args-tokens@0.22.1:
-    resolution: {integrity: sha512-Lwia8tKJHB+AXESZhm//u/zxK5F0csmBfxEC6YUvxBMWGwsHrWOeWlws1y71gXbYipcM9vXcaS7Cp+OcshZBVA==}
-    engines: {node: '>= 20'}
-
   assertion-error@2.0.1:
     resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
     engines: {node: '>=12'}
@@ -649,10 +648,6 @@ packages:
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
     deprecated: Glob versions prior to v9 are no longer supported
-
-  gunshi@0.27.0-alpha.10:
-    resolution: {integrity: sha512-eWmojeE/YNTVR31S91PzTwaIYx4fdYg8An/TmTDoLKaELciczVRCsvM7RVqwfe3kSuHWC6a3FBwBuYyWElQ9oQ==}
-    engines: {node: '>= 20'}
 
   has-flag@3.0.0:
     resolution: {integrity: sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw==}
@@ -1045,6 +1040,10 @@ packages:
   split2@4.2.0:
     resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
     engines: {node: '>= 10.x'}
+
+  sql-highlight@6.1.0:
+    resolution: {integrity: sha512-ed7OK4e9ywpE7pgRMkMQmZDPKSVdm0oX5IEtZiKnFucSF0zu6c80GZBe38UqHuVhTWJ9xsKgSMjCG2bml86KvA==}
+    engines: {node: '>=14'}
 
   stackback@0.0.2:
     resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
@@ -1562,8 +1561,6 @@ snapshots:
 
   argparse@2.0.1: {}
 
-  args-tokens@0.22.1: {}
-
   assertion-error@2.0.1: {}
 
   balanced-match@1.0.2: {}
@@ -1802,10 +1799,6 @@ snapshots:
       minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
-
-  gunshi@0.27.0-alpha.10:
-    dependencies:
-      args-tokens: 0.22.1
 
   has-flag@3.0.0: {}
 
@@ -2136,6 +2129,8 @@ snapshots:
       whatwg-url: 7.1.0
 
   split2@4.2.0: {}
+
+  sql-highlight@6.1.0: {}
 
   stackback@0.0.2: {}
 
