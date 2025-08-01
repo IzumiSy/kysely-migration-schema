@@ -1,5 +1,5 @@
 {
-  "name": "@izumisy/kysely-migration-schema",
+  "name": "@izumisy/kysely-schema-migrator",
   "private": false,
   "type": "module",
   "version": "0.1.0",
@@ -8,7 +8,7 @@
     "dist"
   ],
   "bin": {
-    "kysely-migration-schema": "./dist/main.js"
+    "kysely-schema-migrator": "./dist/main.js"
   },
   "scripts": {
     "dev": "NODE_ENV=development tsup --watch",

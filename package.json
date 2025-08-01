@@ -1,5 +1,5 @@
 {
-  "name": "kysely-migration-schema",
+  "name": "kysely-schema-migrator",
   "private": true,
   "engines": {
     "node": "22.x"
