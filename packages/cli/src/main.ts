@@ -7,6 +7,7 @@ import {
 import { Pool } from "pg";
 import { loadConfig } from "c12";
 import { ConfigType, DialectEnum, configSchema } from "./schema.js";
+import { diffTables, Tables } from "./diff.js";
 
 const main = async () => {
   const loadedConfig = await loadConfig<ConfigType>({
@@ -29,10 +30,32 @@ const main = async () => {
 
   const tables = await getTablesFromIntrospection(introspector);
 
-  for (const table of tables) {
-    console.log(`table: ${table.name}`);
-    console.log(`isView: ${table.isView}`);
-  }
+  // DB側のテーブル情報をTables型に変換
+  const dbTables: Tables = tables.reduce<Tables>((acc, table) => {
+    acc[table.name] = (table.columns ?? []).reduce<
+      Record<string, { type: string }>
+    >((cols, col) => {
+      cols[col.name] = { type: col.dataType };
+      return cols;
+    }, {});
+    return acc;
+  }, {});
+
+  // 設定ファイルのテーブル定義をTables型に変換
+  const configTables: Tables = Object.fromEntries(
+    Object.entries(parsedConfig.tables).map(([tableName, columns]) => [
+      tableName,
+      Object.fromEntries(
+        Object.entries(columns).map(([colName, colDef]) => [
+          colName,
+          { type: colDef.type },
+        ])
+      ),
+    ])
+  );
+
+  const diff = diffTables(dbTables, configTables);
+  console.log(JSON.stringify(diff, null, 2));
 };
 
 const getTablesFromIntrospection = async (
