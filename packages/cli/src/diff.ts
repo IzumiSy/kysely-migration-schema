@@ -6,22 +6,46 @@ export type TableColumnDef = {
 export type TableDef = Record<string, TableColumnDef>;
 export type Tables = Record<string, TableDef>;
 
-type ChangedColumn = {
-  column: string;
-  dbType: string;
-  configType: string;
+// 追加テーブル
+export type AddedTable = {
+  table: string;
+  columns: TableDef;
 };
 
-type ChangedTable = {
+// 削除テーブル（テーブル名のみでOK）
+export type RemovedTable = string;
+
+// 追加カラム
+export type AddedColumn = {
+  column: string;
+  definition: TableColumnDef;
+};
+
+// 削除カラム
+export type RemovedColumn = {
+  column: string;
+  definition: TableColumnDef;
+};
+
+// 型変更カラム
+export type ChangedColumn = {
+  column: string;
+  before: TableColumnDef;
+  after: TableColumnDef;
+};
+
+// テーブルごとの変更
+export type ChangedTable = {
   table: string;
-  addedColumns: string[];
-  removedColumns: string[];
+  addedColumns: AddedColumn[];
+  removedColumns: RemovedColumn[];
   changedColumns: ChangedColumn[];
 };
 
-type TableDiff = {
-  addedTables: string[];
-  removedTables: string[];
+// 全体のdiff
+export type TableDiff = {
+  addedTables: AddedTable[];
+  removedTables: RemovedTable[];
   changedTables: ChangedTable[];
 };
 
@@ -29,8 +53,15 @@ export function diffTables(dbTables: Tables, configTables: Tables): TableDiff {
   const dbTableNames = Object.keys(dbTables);
   const configTableNames = Object.keys(configTables);
 
-  // テーブルの追加・削除
-  const addedTables = configTableNames.filter((t) => !dbTableNames.includes(t));
+  // 追加テーブル: テーブル名＋カラム定義
+  const addedTables = configTableNames
+    .filter((t) => !dbTableNames.includes(t))
+    .map((table) => ({
+      table,
+      columns: configTables[table],
+    }));
+
+  // 削除テーブル: テーブル名のみ
   const removedTables = dbTableNames.filter(
     (t) => !configTableNames.includes(t)
   );
@@ -43,23 +74,34 @@ export function diffTables(dbTables: Tables, configTables: Tables): TableDiff {
     const dbColNames = Object.keys(dbCols);
     const configColNames = Object.keys(configCols);
 
-    const addedColumns = configColNames.filter((c) => !dbColNames.includes(c));
-    const removedColumns = dbColNames.filter(
-      (c) => !configColNames.includes(c)
-    );
+    // 追加カラム: カラム名＋型情報
+    const addedColumns = configColNames
+      .filter((c) => !dbColNames.includes(c))
+      .map((column) => ({
+        column,
+        definition: configCols[column],
+      }));
 
-    const changedColumns = dbColNames.flatMap((c) => {
-      if (configColNames.includes(c) && dbCols[c].type !== configCols[c].type) {
-        return [
-          {
-            column: c,
-            dbType: dbCols[c].type,
-            configType: configCols[c].type,
-          },
-        ];
-      }
-      return [];
-    });
+    // 削除カラム: カラム名＋型情報（削除前の型）
+    const removedColumns = dbColNames
+      .filter((c) => !configColNames.includes(c))
+      .map((column) => ({
+        column,
+        definition: dbCols[column],
+      }));
+
+    // 型変更カラム: before/after型情報
+    const changedColumns = dbColNames
+      .filter(
+        (c) =>
+          configColNames.includes(c) &&
+          JSON.stringify(dbCols[c]) !== JSON.stringify(configCols[c])
+      )
+      .map((column) => ({
+        column,
+        before: dbCols[column],
+        after: configCols[column],
+      }));
 
     if (
       addedColumns.length > 0 ||
