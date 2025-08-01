@@ -1,13 +1,31 @@
 import { ColumnDataType, isColumnDataType, Kysely } from "kysely";
 import { TableDiff } from "./diff";
 
-/**
- * TableDiffの内容をDBに適用する
- * @param db Kyselyインスタンス
- * @param diff TableDiff
- */
-export async function applyDiff(
-  db: Kysely<any>,
+type CreateMigrationProviderProps = {
+  db: Kysely<unknown>;
+  diff: TableDiff;
+};
+
+export const createMigrationProvider = (
+  props: CreateMigrationProviderProps
+) => {
+  const nextMigration = {
+    up: async () => {
+      await buildMigrationFromDiff(props.db, props.diff);
+    },
+  };
+
+  return {
+    getMigrations: async () => {
+      return {
+        current: nextMigration,
+      };
+    },
+  };
+};
+
+export async function buildMigrationFromDiff(
+  db: Kysely<unknown>,
   diff: TableDiff
 ): Promise<void> {
   // 1. 追加テーブル

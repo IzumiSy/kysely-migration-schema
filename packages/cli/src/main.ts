@@ -1,9 +1,14 @@
-import { Kysely, PostgresDialect, PostgresIntrospector } from "kysely";
+import {
+  Kysely,
+  Migrator,
+  PostgresDialect,
+  PostgresIntrospector,
+} from "kysely";
 import { Pool } from "pg";
 import { loadConfig } from "c12";
 import { ConfigType, DialectEnum, configSchema } from "./schema";
 import { diffTables, TableDef, Tables } from "./diff";
-import { applyDiff } from "./applyDiff";
+import { createMigrationProvider } from "./migration";
 
 const main = async () => {
   const loadedConfig = await loadConfig<ConfigType>({
@@ -48,14 +53,31 @@ const main = async () => {
     ])
   );
 
-  // applyDiffを呼び出してDBに反映
-  await applyDiff(
+  const migrationProvider = createMigrationProvider({
     db,
-    diffTables({
+    diff: diffTables({
       current: dbTables,
       ideal: configTables,
-    })
-  );
+    }),
+  });
+  const migrator = new Migrator({
+    db,
+    provider: migrationProvider,
+  });
+
+  const { results: migrationResults } = await migrator.migrateToLatest();
+
+  migrationResults?.forEach((result) => {
+    if (result.status === "Success") {
+      console.log(
+        `migration "${result.migrationName}" was executed successfully`
+      );
+    } else if (result.status === "Error") {
+      console.error(`failed to execute migration "${result.migrationName}"`);
+    }
+  });
+
+  await db.destroy();
 };
 
 type GetIntrospectorProps = {
