@@ -65,15 +65,14 @@ const main = async () => {
     provider: migrationProvider,
   });
 
-  const { results: migrationResults } = await migrator.migrateToLatest();
+  const { results: migrationResults, error: migrationError } =
+    await migrator.migrateToLatest();
 
   migrationResults?.forEach((result) => {
     if (result.status === "Success") {
-      console.log(
-        `migration "${result.migrationName}" was executed successfully`
-      );
+      console.log("migration executed successfully");
     } else if (result.status === "Error") {
-      console.error(`failed to execute migration "${result.migrationName}"`);
+      console.error(`failed to execute migration: ${migrationError} `);
     }
   });
 
