@@ -1,4 +1,8 @@
 export default {
+  database: {
+    dialect: "postgres",
+    connectionString: "postgres://postgres:postgres@localhost:5432/postgres",
+  },
   tables: {
     users: {
       id: {

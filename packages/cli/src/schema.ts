@@ -24,10 +24,18 @@ const optionsSchema = z.object({
   migrationDir: z.string().optional(),
 });
 
+const dialectEnum = z.enum(["postgres", "mysql", "sqlite", "mssql"]);
+const databaseSchema = z.object({
+  dialect: dialectEnum,
+  connectionString: z.string(),
+});
+
 export const configSchema = z.object({
+  database: databaseSchema,
   options: optionsSchema.optional(),
   tables: tableSchema,
   indexes: indexSchema.optional(),
 });
 
 export type ConfigType = z.infer<typeof configSchema>;
+export type DialectEnum = z.infer<typeof dialectEnum>;
