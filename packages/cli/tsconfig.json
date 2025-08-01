@@ -4,6 +4,7 @@
     "module": "preserve",
     "moduleResolution": "bundler",
     "strict": true,
+    "resolveJsonModule": true,
     "noImplicitAny": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,

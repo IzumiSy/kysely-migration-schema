@@ -5,11 +5,6 @@ export default {
   },
   tables: {
     users: {
-      id: {
-        type: "string",
-        primaryKey: true,
-        generated: "uuid",
-      },
       name: {
         type: "varchar",
         length: 255,
