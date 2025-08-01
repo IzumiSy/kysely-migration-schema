@@ -1,5 +1,5 @@
 import { Kysely } from "kysely";
-import { TableDiff } from "./diff.js";
+import { TableDiff } from "./diff";
 
 /**
  * TableDiffの内容をDBに適用する

@@ -6,9 +6,9 @@ import {
 } from "kysely";
 import { Pool } from "pg";
 import { loadConfig } from "c12";
-import { ConfigType, DialectEnum, configSchema } from "./schema.js";
-import { diffTables, Tables } from "./diff.js";
-import { applyDiff } from "./applyDiff.js";
+import { ConfigType, DialectEnum, configSchema } from "./schema";
+import { diffTables, Tables } from "./diff";
+import { applyDiff } from "./applyDiff";
 
 const main = async () => {
   const loadedConfig = await loadConfig<ConfigType>({
