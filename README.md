@@ -2,14 +2,7 @@
 
 ## Overview
 
-`kysely-schema-migrator` is a CLI tool that compares your defined database schema (written in a TypeScript config file) with the current state of your actual database, and generates migration code (diff) for use with [kysely migration](https://www.kysely.dev/docs/migrations).
-
-## Features
-
-- Compare schema definition files (e.g., `kysely-schema.config.ts`) with the actual DB state
-- Detect differences and automatically generate TypeScript migration code
-- Supports Postgres (MySQL, SQLite, MSSQL support planned)
-- Handles table, column, and index additions, deletions, and modifications
+`kysely-schema-migrator` is a CLI tool that compares your defined database schema (written in a TypeScript config file) with the current state of your actual database, and executes migration from the diff if needed by using [kysely migration](https://www.kysely.dev/docs/migrations).
 
 ## Installation
 
@@ -29,11 +22,6 @@ export default {
   database: {
     dialect: "postgres",
     connectionString: "postgres://postgres:postgres@localhost:5432/postgres",
-  },
-
-  // Misc options (such as output directory, optional)
-  options: {
-    migrationDir: "your/migration/dir"
   },
 
   // Table definitions
@@ -69,13 +57,11 @@ export default {
 };
 ```
 
-2. Run the CLI to generate migration code:
+2. Run the CLI to run migrateion:
 
 ```bash
-kysely-schema-migrator
+kysely-schema-migrator migrate
 ```
-
-3. Use the generated migration code together with kysely.
 
 ## Supported Databases
 
