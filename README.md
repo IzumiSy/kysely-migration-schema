@@ -57,15 +57,43 @@ export default {
 };
 ```
 
-2. Run the CLI to run migrateion:
+2. Run the CLI to run migration:
 
 ```bash
 kysely-schema-migrator migrate
 ```
 
+### CLI Options
+
+- `--color`, `-c`: Enable colored SQL output.
+- `--plan`, `-p`: Show the SQL queries that would be executed without running them (dry-run).
+
+## Example Project
+
+A sample project is available in [examples/basic](./examples/basic):
+
+- Example `kysely-schema.config.ts`
+- Example `package.json` and `tsconfig.json`
+- You can use this as a reference for your own setup.
+
 ## Supported Databases
 
-- Postgres (MySQL, SQLite, MSSQL support planned)
+- PostgreSQL  
+  (MySQL, SQLite, MSSQL support planned)
+
+## FAQ
+
+### Q. How do I perform a dry-run to see the SQL without applying changes?
+
+Use the `--plan` or `-p` option:  
+
+```bash
+kysely-schema-migrator migrate --plan
+```
+
+### Q. What should I do if my migration fails?
+
+Check your database connection settings and schema definitions. Ensure your database is running and accessible. See error messages for details.
 
 ## License
 
