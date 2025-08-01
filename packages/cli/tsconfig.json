@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "target": "ES2020",
+    "module": "preserve",
+    "moduleResolution": "bundler",
     "strict": true,
+    "resolveJsonModule": true,
     "noImplicitAny": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,

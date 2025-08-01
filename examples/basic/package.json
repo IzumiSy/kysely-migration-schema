@@ -2,7 +2,7 @@
   "name": "basic",
   "private": true,
   "devDependencies": {
-    "kysely": "^0.28.3",
-    "@izumisy/kysely-migration-schema": "workspace:^"
+    "@izumisy/kysely-migration-schema": "workspace:^",
+    "kysely": "^0.28.3"
   }
 }

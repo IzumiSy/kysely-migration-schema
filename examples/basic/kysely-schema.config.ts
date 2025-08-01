@@ -4,17 +4,7 @@ export default {
     connectionString: "postgres://postgres:postgres@localhost:5432/postgres",
   },
   tables: {
-    users: {
-      id: {
-        type: "string",
-        primaryKey: true,
-        generated: "uuid",
-      },
-      name: {
-        type: "varchar",
-        length: 255,
-        notNull: true,
-      },
+    members: {
       email: {
         type: "varchar",
         length: 255,

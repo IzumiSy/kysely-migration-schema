@@ -20,10 +20,6 @@ const indexSchema = z.record(
   })
 );
 
-const optionsSchema = z.object({
-  migrationDir: z.string().optional(),
-});
-
 const dialectEnum = z.enum(["postgres", "mysql", "sqlite", "mssql"]);
 const databaseSchema = z.object({
   dialect: dialectEnum,
@@ -32,7 +28,6 @@ const databaseSchema = z.object({
 
 export const configSchema = z.object({
   database: databaseSchema,
-  options: optionsSchema.optional(),
   tables: tableSchema,
   indexes: indexSchema.optional(),
 });
