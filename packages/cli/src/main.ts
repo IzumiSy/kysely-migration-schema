@@ -29,7 +29,7 @@ const main = async () => {
     ...parsedConfig.database,
   });
 
-  const tables = await getTablesFromIntrospection(introspector);
+  const tables = await introspector.getTables();
 
   // DB側のテーブル情報をTables型に変換
   const dbTables = tables.reduce<Tables>((acc, table) => {
@@ -61,13 +61,6 @@ const main = async () => {
       ideal: configTables,
     })
   );
-};
-
-const getTablesFromIntrospection = async (
-  introspector: DatabaseIntrospector
-) => {
-  const tables = await introspector.getTables();
-  return tables;
 };
 
 type GetIntrospectorProps = {
