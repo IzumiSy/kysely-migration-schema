@@ -1,12 +1,11 @@
-import { CompiledQuery, Migrator } from "kysely";
+import { Migrator } from "kysely";
 import { loadConfig } from "c12";
 import { ConfigType, configSchema } from "./schema";
-import { diffTables, TableDef, Tables } from "./diff";
+import { diffTables, TableDef, TableDiff, Tables } from "./diff";
 import { createMigrationProvider } from "./migration";
 import { defineCommand, runMain } from "citty";
-import { getIntrospector } from "./introspector";
+import { getConnection } from "./introspector";
 import * as pkg from "../package.json";
-import { highlight } from "sql-highlight";
 import { createConsola } from "consola";
 
 const logger = createConsola({
@@ -20,12 +19,6 @@ const migrateCmd = defineCommand({
     description: "Run migrations to sync database schema",
   },
   args: {
-    color: {
-      alias: ["c"],
-      type: "boolean",
-      default: false,
-      description: "Enable colored SQL output",
-    },
     plan: {
       alias: ["p"],
       type: "boolean",
@@ -50,11 +43,8 @@ const migrateCmd = defineCommand({
         process.exit(1);
       }
 
-      const plannedQueries: CompiledQuery[] = [];
-      const { db } = await getIntrospector({
+      const { db } = await getConnection({
         database: parsedConfig.database,
-        plan: ctx.args.plan,
-        plannedQueries,
       });
 
       const tables = await db.introspection.getTables();
@@ -85,6 +75,11 @@ const migrateCmd = defineCommand({
         ideal: configTables,
       });
 
+      if (ctx.args.plan) {
+        await db.destroy();
+        return;
+      }
+
       const migrator = new Migrator({
         db,
         provider: createMigrationProvider({
@@ -95,18 +90,6 @@ const migrateCmd = defineCommand({
 
       const { results: migrationResults, error: migrationError } =
         await migrator.migrateToLatest();
-
-      if (plannedQueries.length > 0) {
-        plannedQueries.forEach((query) => {
-          process.stdout.write(
-            [
-              `--- (SQL) ${query.queryId.queryId} ---`,
-              `${ctx.args.color ? highlight(query.sql) : query.sql}\n`,
-            ].join("\n")
-          );
-        });
-        logger.info(`Planned ${plannedQueries.length} queries.`);
-      }
 
       if (migrationResults && migrationResults.length > 0) {
         migrationResults.forEach((result) => {
@@ -120,7 +103,7 @@ const migrateCmd = defineCommand({
         logger.info("No migrations to run");
       }
 
-      await db.destroy();
+      EXIT: await db.destroy();
     } catch (error) {
       logger.error(error);
       process.exit(1);
