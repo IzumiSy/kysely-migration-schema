@@ -38,5 +38,5 @@ export const getIntrospector = async (props: {
     },
   });
 
-  return { introspector: dialect.createIntrospector(db), db };
+  return { db };
 };

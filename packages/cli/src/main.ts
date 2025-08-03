@@ -51,13 +51,13 @@ const migrateCmd = defineCommand({
       }
 
       const plannedQueries: CompiledQuery[] = [];
-      const { introspector, db } = await getIntrospector({
+      const { db } = await getIntrospector({
         database: parsedConfig.database,
         plan: ctx.args.plan,
         plannedQueries,
       });
 
-      const tables = await introspector.getTables();
+      const tables = await db.introspection.getTables();
       const dbTables = tables.reduce<Tables>((acc, table) => {
         acc[table.name] = (table.columns ?? []).reduce<TableDef>(
           (cols, col) => {
@@ -84,6 +84,7 @@ const migrateCmd = defineCommand({
         current: dbTables,
         ideal: configTables,
       });
+
       const migrator = new Migrator({
         db,
         provider: createMigrationProvider({
