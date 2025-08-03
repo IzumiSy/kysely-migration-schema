@@ -75,6 +75,7 @@ const migrateCmd = defineCommand({
         ideal: configTables,
       });
 
+      printPrettyDiff(diff);
       if (ctx.args.plan) {
         await db.destroy();
         return;
@@ -110,6 +111,39 @@ const migrateCmd = defineCommand({
     }
   },
 });
+
+const printPrettyDiff = (diff: TableDiff) => {
+  // Show changes one by one like (added_table, changed_column, etc.)
+  if (diff.addedTables.length > 0) {
+    diff.addedTables.forEach((table) => {
+      logger.info(`create_table: ${table}`);
+    });
+  }
+  if (diff.removedTables.length > 0) {
+    diff.removedTables.forEach((table) => {
+      logger.info(`remov_table: ${table}`);
+    });
+  }
+  if (diff.changedTables.length > 0) {
+    diff.changedTables.forEach((table) => {
+      table.addedColumns.forEach((col) => {
+        logger.info(
+          `add_column: ${table.table}.${col.column} (${col.definition.type})`
+        );
+      });
+      table.removedColumns.forEach((col) => {
+        logger.info(
+          `remove_column: ${table.table}.${col.column} (${col.definition.type})`
+        );
+      });
+      table.changedColumns.forEach((col) => {
+        logger.info(
+          `change_column: ${table.table}.${col.column} (from ${col.before.type} to ${col.after.type})`
+        );
+      });
+    });
+  }
+};
 
 const mainCmd = defineCommand({
   meta: {

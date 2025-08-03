@@ -1,7 +1,6 @@
-import { CompiledQuery, Kysely, PostgresDialect } from "kysely";
+import { Kysely, PostgresDialect } from "kysely";
 import { DialectEnum } from "./schema";
 import { Pool } from "pg";
-import { SQLCollectingDriver } from "./collector";
 
 export const getConnection = async (props: {
   database: {
