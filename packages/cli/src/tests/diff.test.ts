@@ -17,7 +17,10 @@ describe("diffTables", () => {
       },
     };
 
-    const diff = diffTables(dbTables, configTables);
+    const diff = diffTables({
+      current: dbTables,
+      ideal: configTables,
+    });
 
     expect(diff.addedTables).toEqual([
       {
@@ -46,7 +49,10 @@ describe("diffTables", () => {
       },
     };
 
-    const diff = diffTables(dbTables, configTables);
+    const diff = diffTables({
+      current: dbTables,
+      ideal: configTables,
+    });
 
     expect(diff.addedTables).toEqual([]);
     expect(diff.removedTables).toEqual(["posts"]);
@@ -69,7 +75,10 @@ describe("diffTables", () => {
       },
     };
 
-    const diff = diffTables(dbTables, configTables);
+    const diff = diffTables({
+      current: dbTables,
+      ideal: configTables,
+    });
 
     expect(diff.addedTables).toEqual([]);
     expect(diff.removedTables).toEqual([]);
@@ -113,7 +122,10 @@ describe("diffTables", () => {
       },
     };
 
-    const diff = diffTables(dbTables, configTables);
+    const diff = diffTables({
+      current: dbTables,
+      ideal: configTables,
+    });
 
     expect(diff.addedTables).toEqual([]);
     expect(diff.removedTables).toEqual([]);
