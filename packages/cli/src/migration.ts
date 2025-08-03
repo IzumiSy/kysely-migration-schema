@@ -1,5 +1,6 @@
 import { ColumnDataType, isColumnDataType, Kysely } from "kysely";
 import { TableDiff } from "./diff";
+import { Xid } from "xid-ts";
 
 type CreateMigrationProviderProps = {
   db: Kysely<unknown>;
@@ -17,8 +18,11 @@ export const createMigrationProvider = (
 
   return {
     getMigrations: async () => {
+      const xid = new Xid();
+      const migrationID = xid.toString();
+
       return {
-        current: nextMigration,
+        [migrationID]: nextMigration,
       };
     },
   };

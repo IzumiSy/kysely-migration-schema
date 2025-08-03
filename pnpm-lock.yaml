@@ -44,6 +44,9 @@ importers:
       sql-highlight:
         specifier: ^6.1.0
         version: 6.1.0
+      xid-ts:
+        specifier: ^1.1.4
+        version: 1.1.4
       zod:
         specifier: ^4.0.14
         version: 4.0.14
@@ -1297,6 +1300,10 @@ packages:
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
+  xid-ts@1.1.4:
+    resolution: {integrity: sha512-bdBn9nW1e8O/dcrNYhAHJ+Iabe384mLoPkRypAylyazI+AfJnV0JMIoH/1DUnsdcCHLn/ZEH7Pt5kRUH4xnJdA==}
+    engines: {node: '>=18.0.0'}
+
   xtend@4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
     engines: {node: '>=0.4'}
@@ -2383,6 +2390,8 @@ snapshots:
       strip-ansi: 7.1.0
 
   wrappy@1.0.2: {}
+
+  xid-ts@1.1.4: {}
 
   xtend@4.0.2: {}
 
