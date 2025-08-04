@@ -65,6 +65,7 @@ export async function buildMigrationFromDiff(
         let c = col;
         if (colDef.notNull) c = c.notNull();
         if (colDef.primaryKey) c = c.primaryKey();
+        if (colDef.unique) c = c.unique();
         return c;
       });
     }
@@ -88,6 +89,7 @@ export async function buildMigrationFromDiff(
           let c = col;
           if (addCol.attributes.notNull) c = c.notNull();
           if (addCol.attributes.primaryKey) c = c.primaryKey();
+          if (addCol.attributes.unique) c = c.unique();
           return c;
         })
         .execute();

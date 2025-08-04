@@ -166,9 +166,10 @@ const printPrettyDiff = (diff: TableDiff) => {
   // Show changes one by one like (added_table, changed_column, etc.)
   if (diff.addedTables.length > 0) {
     diff.addedTables.forEach((table) => {
-      logger.log(
-        `-- create_table: ${table.table} (${Object.keys(table.columns).join(", ")})`
-      );
+      logger.log(`-- create_table: ${table.table}`);
+      Object.entries(table.columns).forEach(([colName, colDef]) => {
+        logger.log(`   -> column: ${colName} (${JSON.stringify(colDef)})`);
+      });
     });
   }
   if (diff.removedTables.length > 0) {
@@ -228,6 +229,7 @@ const generateMigrationFromIntrospection = async (props: {
             type: colDef.type,
             notNull: colDef.notNull,
             primaryKey: colDef.primaryKey,
+            unique: colDef.unique,
           },
         ])
       ),
