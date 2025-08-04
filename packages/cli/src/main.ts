@@ -216,7 +216,10 @@ const generateMigrationFromIntrospection = async (props: {
       Object.fromEntries(
         Object.entries(columns).map(([colName, colDef]) => [
           colName,
-          { type: colDef.type },
+          {
+            type: colDef.type,
+            notNull: colDef.notNull,
+          },
         ])
       ),
     ])

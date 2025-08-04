@@ -23,7 +23,7 @@ export const readMigrationFiles = async () => {
       );
     return await Promise.all(migrationJSONFiles);
   } catch (error) {
-    if ("code" in error && error.code === "ENOENT") {
+    if (error instanceof Object && "code" in error && error.code === "ENOENT") {
       // Migration directory does not exist, return an empty array
       return [];
     }
@@ -61,8 +61,11 @@ export async function buildMigrationFromDiff(
     for (const [colName, colDef] of Object.entries(added.columns)) {
       const dataType = colDef.type;
       assertDataType(dataType);
-      // 最低限typeのみ対応（拡張は後で）
-      builder = builder.addColumn(colName, dataType);
+      builder = builder.addColumn(colName, dataType, (col) => {
+        let c = col;
+        if (colDef.notNull) c = c.notNull();
+        return c;
+      });
     }
     await builder.execute();
   }
@@ -80,7 +83,11 @@ export async function buildMigrationFromDiff(
       assertDataType(dataType);
       await db.schema
         .alterTable(changed.table)
-        .addColumn(addCol.column, dataType)
+        .addColumn(addCol.column, dataType, (col) => {
+          let c = col;
+          if (addCol.attributes.notNull) c = c.notNull();
+          return c;
+        })
         .execute();
     }
     // 削除カラム
@@ -92,14 +99,32 @@ export async function buildMigrationFromDiff(
     }
     // 型変更カラム
     for (const chCol of changed.changedColumns) {
-      await db.schema
-        .alterTable(changed.table)
-        .alterColumn(chCol.column, (col) => {
-          const dataType = chCol.after.type;
-          assertDataType(dataType);
-          return col.setDataType(dataType);
-        })
-        .execute();
+      // 1. dataTypeの変更
+      if (chCol.before.type !== chCol.after.type) {
+        const dataType = chCol.after.type;
+        assertDataType(dataType);
+        await db.schema
+          .alterTable(changed.table)
+          .alterColumn(chCol.column, (col) => col.setDataType(dataType))
+          .execute();
+      }
+      // 2. notNull/nullableの変更
+      if (
+        chCol.after.notNull !== undefined &&
+        chCol.after.notNull !== chCol.before.notNull
+      ) {
+        if (chCol.after.notNull) {
+          await db.schema
+            .alterTable(changed.table)
+            .alterColumn(chCol.column, (col) => col.setNotNull())
+            .execute();
+        } else {
+          await db.schema
+            .alterTable(changed.table)
+            .alterColumn(chCol.column, (col) => col.dropNotNull())
+            .execute();
+        }
+      }
     }
   }
 }

@@ -6,7 +6,7 @@ const tableSchema = z.record(
     z.string(),
     z.object({
       type: z.string(),
-      primaryKey: z.boolean().optional(),
+      notNull: z.boolean().optional(),
     })
   )
 );
