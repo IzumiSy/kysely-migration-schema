@@ -5,20 +5,21 @@ export default {
   },
   tables: {
     members: {
+      id: {
+        type: "uuid",
+        primaryKey: true,
+      },
       email: {
-        type: "varchar",
+        type: "text",
         notNull: true,
+        unique: true,
       },
       name: {
-        type: "varchar",
-        notNull: true,
-      },
-      note: {
         type: "text",
+        unique: true,
       },
       age: {
         type: "int4",
-        notNull: true,
       },
     },
   },
