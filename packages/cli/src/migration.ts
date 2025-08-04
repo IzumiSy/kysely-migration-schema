@@ -71,7 +71,7 @@ export async function buildMigrationFromDiff(
   for (const changed of diff.changedTables) {
     // 追加カラム
     for (const addCol of changed.addedColumns) {
-      const dataType = addCol.definition.type;
+      const dataType = addCol.attributes.type;
       assertDataType(dataType);
       await db.schema
         .alterTable(changed.table)

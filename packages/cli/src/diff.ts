@@ -1,9 +1,9 @@
-export type TableColumnDef = {
+export type TableColumnAttributes = {
   type: string;
   [key: string]: unknown;
 };
 
-export type TableDef = Record<string, TableColumnDef>;
+export type TableDef = Record<string, TableColumnAttributes>;
 export type Tables = Record<string, TableDef>;
 
 // 追加テーブル
@@ -18,20 +18,20 @@ export type RemovedTable = string;
 // 追加カラム
 export type AddedColumn = {
   column: string;
-  definition: TableColumnDef;
+  attributes: TableColumnAttributes;
 };
 
 // 削除カラム
 export type RemovedColumn = {
   column: string;
-  definition: TableColumnDef;
+  attributes: TableColumnAttributes;
 };
 
 // 型変更カラム
 export type ChangedColumn = {
   column: string;
-  before: TableColumnDef;
-  after: TableColumnDef;
+  before: TableColumnAttributes;
+  after: TableColumnAttributes;
 };
 
 // テーブルごとの変更
@@ -83,7 +83,7 @@ export function diffTables(props: {
       .filter((c) => !dbColNames.includes(c))
       .map((column) => ({
         column,
-        definition: configCols[column],
+        attributes: configCols[column],
       }));
 
     // 削除カラム: カラム名＋型情報（削除前の型）
@@ -91,7 +91,7 @@ export function diffTables(props: {
       .filter((c) => !configColNames.includes(c))
       .map((column) => ({
         column,
-        definition: dbCols[column],
+        attributes: dbCols[column],
       }));
 
     // 型変更カラム: before/after型情報
