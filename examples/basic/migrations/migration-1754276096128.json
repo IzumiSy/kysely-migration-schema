@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "id": 1754276096128,
+  "diff": {
+    "addedTables": [
+      {
+        "table": "members",
+        "columns": {
+          "email": {
+            "type": "varchar"
+          },
+          "age": {
+            "type": "integer"
+          }
+        }
+      }
+    ],
+    "removedTables": [],
+    "changedTables": []
+  }
+}

@@ -11,6 +11,18 @@ export default {
         unique: true,
         notNull: true,
       },
+      name: {
+        type: "varchar",
+        length: 255,
+        notNull: true,
+      },
+      note: {
+        type: "text",
+      },
+      age: {
+        type: "integer",
+        notNull: true,
+      },
     },
   },
   indexes: {

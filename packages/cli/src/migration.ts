@@ -1,29 +1,47 @@
-import { ColumnDataType, isColumnDataType, Kysely } from "kysely";
+import { ColumnDataType, isColumnDataType, Kysely, Migration } from "kysely";
 import { TableDiff } from "./diff";
-import { Xid } from "xid-ts";
+import { readdir, readFile } from "fs/promises";
+import { join } from "path";
+
+export const migrationDirName = "migrations";
 
 type CreateMigrationProviderProps = {
   db: Kysely<unknown>;
+  migrationDirName: string;
+};
+
+type MigrationFile = {
+  version: number;
+  id: string;
   diff: TableDiff;
 };
 
 export const createMigrationProvider = (
   props: CreateMigrationProviderProps
 ) => {
-  const nextMigration = {
-    up: async () => {
-      await buildMigrationFromDiff(props.db, props.diff);
-    },
-  };
-
   return {
     getMigrations: async () => {
-      const xid = new Xid();
-      const migrationID = xid.toString();
+      const files = await readdir(props.migrationDirName);
+      const migrationValues = await Promise.all(
+        files.map(async (file) => {
+          const contentString = await readFile(
+            join(props.migrationDirName, file),
+            "utf-8"
+          );
+          return JSON.parse(contentString) as MigrationFile;
+        })
+      );
 
-      return {
-        [migrationID]: nextMigration,
-      };
+      const migrations: Record<string, Migration> = {};
+      migrationValues.forEach((migration) => {
+        migrations[migration.id] = {
+          up: async () => {
+            await buildMigrationFromDiff(props.db, migration.diff);
+          },
+        };
+      });
+
+      return migrations;
     },
   };
 };

@@ -22,9 +22,9 @@ export const getConnection = async (props: {
     }
   };
 
-  const db = new Kysely({
-    dialect: getDialect(),
-  });
-
-  return { db };
+  return {
+    db: new Kysely({
+      dialect: getDialect(),
+    }),
+  };
 };

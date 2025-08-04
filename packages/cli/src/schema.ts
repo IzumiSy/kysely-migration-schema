@@ -32,5 +32,5 @@ export const configSchema = z.object({
   indexes: indexSchema.optional(),
 });
 
-export type ConfigType = z.infer<typeof configSchema>;
+export type ConfigValue = z.infer<typeof configSchema>;
 export type DialectEnum = z.infer<typeof dialectEnum>;
