@@ -64,6 +64,7 @@ export async function buildMigrationFromDiff(
       builder = builder.addColumn(colName, dataType, (col) => {
         let c = col;
         if (colDef.notNull) c = c.notNull();
+        if (colDef.primaryKey) c = c.primaryKey();
         return c;
       });
     }
@@ -86,6 +87,7 @@ export async function buildMigrationFromDiff(
         .addColumn(addCol.column, dataType, (col) => {
           let c = col;
           if (addCol.attributes.notNull) c = c.notNull();
+          if (addCol.attributes.primaryKey) c = c.primaryKey();
           return c;
         })
         .execute();
@@ -99,7 +101,7 @@ export async function buildMigrationFromDiff(
     }
     // 型変更カラム
     for (const chCol of changed.changedColumns) {
-      // 1. dataTypeの変更
+      // dataTypeの変更
       if (chCol.before.type !== chCol.after.type) {
         const dataType = chCol.after.type;
         assertDataType(dataType);
@@ -108,7 +110,8 @@ export async function buildMigrationFromDiff(
           .alterColumn(chCol.column, (col) => col.setDataType(dataType))
           .execute();
       }
-      // 2. notNull/nullableの変更
+
+      // notNull/nullableの変更
       if (chCol.after.notNull !== chCol.before.notNull) {
         if (chCol.after.notNull) {
           await db.schema

@@ -180,7 +180,10 @@ const printPrettyDiff = (diff: TableDiff) => {
     diff.changedTables.forEach((table) => {
       table.addedColumns.forEach((col) => {
         logger.log(
-          `-- add_column: ${table.table}.${col.column} (${JSON.stringify(col.attributes)})`
+          [
+            `-- add_column: ${table.table}.${col.column}`,
+            `   -> to: ${JSON.stringify(col.attributes)}`,
+          ].join("\n")
         );
       });
       table.removedColumns.forEach((col) => {
@@ -188,7 +191,11 @@ const printPrettyDiff = (diff: TableDiff) => {
       });
       table.changedColumns.forEach((col) => {
         logger.log(
-          `-- change_column: ${table.table}.${col.column} (from ${JSON.stringify(col.before)} to ${JSON.stringify(col.after)})`
+          [
+            `-- change_column: ${table.table}.${col.column}`,
+            `   -> from: ${JSON.stringify(col.before)}`,
+            `   -> to:   ${JSON.stringify(col.after)}`,
+          ].join("\n")
         );
       });
     });
@@ -219,7 +226,8 @@ const generateMigrationFromIntrospection = async (props: {
           colName,
           {
             type: colDef.type,
-            notNull: colDef.notNull ?? false,
+            notNull: colDef.notNull,
+            primaryKey: colDef.primaryKey,
           },
         ])
       ),

@@ -95,11 +95,13 @@ export function diffTables(props: {
       }));
 
     // 型変更カラム: before/after型情報
+    // Changes on primaryKey is not supported by kesely
     const changedColumns = dbColNames
       .filter(
         (c) =>
           configColNames.includes(c) &&
-          JSON.stringify(dbCols[c]) !== JSON.stringify(configCols[c])
+          (dbCols[c].type !== configCols[c].type ||
+            dbCols[c].notNull !== configCols[c].notNull)
       )
       .map((column) => ({
         column,
