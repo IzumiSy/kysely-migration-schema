@@ -27,11 +27,4 @@ export default {
       },
     },
   },
-  indexes: {
-    users_email_idx: {
-      table: "users",
-      columns: ["email"],
-      unique: true,
-    },
-  },
 };
