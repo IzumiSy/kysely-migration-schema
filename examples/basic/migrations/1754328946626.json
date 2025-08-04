@@ -1,0 +1,39 @@
+{
+  "version": "1",
+  "id": "1754328946626",
+  "diff": {
+    "addedTables": [
+      {
+        "table": "members",
+        "columns": {
+          "id": {
+            "type": "uuid",
+            "notNull": false,
+            "primaryKey": true,
+            "unique": false
+          },
+          "email": {
+            "type": "text",
+            "notNull": true,
+            "primaryKey": false,
+            "unique": true
+          },
+          "name": {
+            "type": "text",
+            "notNull": false,
+            "primaryKey": false,
+            "unique": true
+          },
+          "age": {
+            "type": "int4",
+            "notNull": false,
+            "primaryKey": false,
+            "unique": false
+          }
+        }
+      }
+    ],
+    "removedTables": [],
+    "changedTables": []
+  }
+}

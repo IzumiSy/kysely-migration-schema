@@ -7,6 +7,7 @@ export default {
     members: {
       id: {
         type: "uuid",
+        notNull: true,
         primaryKey: true,
       },
       email: {
@@ -20,6 +21,9 @@ export default {
       },
       age: {
         type: "int4",
+      },
+      createdAt: {
+        type: "timestamptz",
       },
     },
   },
