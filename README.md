@@ -127,41 +127,6 @@ kysely-schema-migrator apply --dry-run
 - Diff-based migration: only necessary changes are applied.
 - Modular architecture for easy extension (see `DESIGN.md`).
 
-### Internal Design (see also `DESIGN.md`)
-
-- **Package Structure**
-  - `packages/cli/`: Main CLI implementation and entry point.
-  - `packages/cli/src/`: Core modules
-    - `main.ts`: CLI entry point, command definitions, and execution flow.
-    - `diff.ts`: Calculates the difference between the current database schema and the desired schema.
-    - `introspector.ts`: Introspects the current database schema.
-    - `migration.ts`: Builds and applies migrations based on schema diffs.
-    - `schema.ts`: Schema validation and config typing.
-  - `examples/basic/`: Example project and configuration.
-
-- **Main Flow**
-  1. Loads and validates `kysely-schema.config.ts` using Zod schema.
-  2. Connects to the target database and introspects the current schema.
-  3. Computes the diff between the current and desired schema.
-  4. Generates and applies migrations based on the diff.
-  5. CLI outputs migration results and errors.
-
-- **Key Modules**
-  - `diffTables` (diff.ts): Compares schemas and returns required changes.
-  - `buildMigrationFromDiff` (migration.ts): Generates migration steps from the diff object.
-  - `introspector.ts`: Retrieves schema metadata from the database.
-
-- **Design Principles**
-  - Declarative, type-safe schema definition.
-  - Diff-based, minimal migration.
-  - Modular and extensible for future database support.
-
-- **Planned Improvements**
-  - Support for MySQL, SQLite, MSSQL.
-  - More advanced diffing (constraints, triggers, etc.).
-  - Improved error handling and reporting.
-  - Richer config validation and editor integration.
-
 ## License
 
 MIT
