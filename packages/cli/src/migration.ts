@@ -109,10 +109,7 @@ export async function buildMigrationFromDiff(
           .execute();
       }
       // 2. notNull/nullableの変更
-      if (
-        chCol.after.notNull !== undefined &&
-        chCol.after.notNull !== chCol.before.notNull
-      ) {
+      if (chCol.after.notNull !== chCol.before.notNull) {
         if (chCol.after.notNull) {
           await db.schema
             .alterTable(changed.table)

@@ -180,17 +180,15 @@ const printPrettyDiff = (diff: TableDiff) => {
     diff.changedTables.forEach((table) => {
       table.addedColumns.forEach((col) => {
         logger.log(
-          `-- add_column: ${table.table}.${col.column} (${col.attributes.type})`
+          `-- add_column: ${table.table}.${col.column} (${JSON.stringify(col.attributes)})`
         );
       });
       table.removedColumns.forEach((col) => {
-        logger.log(
-          `-- remove_column: ${table.table}.${col.column} (${col.attributes.type})`
-        );
+        logger.log(`-- remove_column: ${table.table}.${col.column})`);
       });
       table.changedColumns.forEach((col) => {
         logger.log(
-          `-- change_column: ${table.table}.${col.column} (from ${col.before.type} to ${col.after.type})`
+          `-- change_column: ${table.table}.${col.column} (from ${JSON.stringify(col.before)} to ${JSON.stringify(col.after)})`
         );
       });
     });
@@ -205,7 +203,10 @@ const generateMigrationFromIntrospection = async (props: {
   const tables = await db.introspection.getTables();
   const dbTables = tables.reduce<Tables>((acc, table) => {
     acc[table.name] = (table.columns ?? []).reduce<TableDef>((cols, col) => {
-      cols[col.name] = { type: col.dataType };
+      cols[col.name] = {
+        type: col.dataType,
+        notNull: !col.isNullable,
+      };
       return cols;
     }, {});
     return acc;
@@ -218,7 +219,7 @@ const generateMigrationFromIntrospection = async (props: {
           colName,
           {
             type: colDef.type,
-            notNull: colDef.notNull,
+            notNull: colDef.notNull ?? false,
           },
         ])
       ),
