@@ -13,11 +13,11 @@ This document describes the internal design and architecture of `kysely-schema-m
 
 - `packages/cli/src/`  
   - `main.ts`: CLI entry point, command definitions, and execution flow.
-  - `collector.ts`: Implements a dummy Kysely driver to collect SQL queries for dry-run/planning.
   - `diff.ts`: Calculates the difference between the current database schema and the desired schema.
   - `introspector.ts`: Introspects the current database schema.
   - `migration.ts`: Builds and applies migrations based on schema diffs.
   - `schema.ts`: Schema validation and config typing.
+  - `tests/`: Unit tests for core logic (e.g., diff calculation).
 
 - `examples/basic/`  
   Example project and configuration.
@@ -36,11 +36,12 @@ This document describes the internal design and architecture of `kysely-schema-m
    Uses `diffTables` to compute the difference between the current and desired schema.
 
 4. **Migration Planning & Execution**  
-   - If `--plan` is specified, uses `SQLCollectingDriver` to collect and print SQL queries without executing.
-   - Otherwise, builds and applies migrations using Kysely's `Migrator` and a custom migration provider.
+   - Generates migration files as JSON in the `migrations/` directory.
+   - `generate` command creates migration files from schema diff.
+   - `apply` command applies migrations to the database.
+   - `--dry-run` option for `apply` outputs SQL without executing.
 
 5. **CLI Output**  
-   - Outputs planned SQL (optionally colored with `--color`).
    - Logs migration results and errors.
 
 ---
@@ -54,10 +55,6 @@ This document describes the internal design and architecture of `kysely-schema-m
 ### `buildMigrationFromDiff` (migration.ts)
 - Generates migration steps (SQL) from the diff object.
 
-### `SQLCollectingDriver` (collector.ts)
-- Custom Kysely driver that collects SQL queries instead of executing them.
-- Used for dry-run/planning mode.
-
 ### `introspector.ts`
 - Connects to the database and retrieves schema metadata (tables, columns, indexes).
 
@@ -67,7 +64,7 @@ This document describes the internal design and architecture of `kysely-schema-m
 
 - **Declarative Schema**: Users define the desired schema in TypeScript, enabling type safety and flexibility.
 - **Diff-based Migration**: Only the necessary changes are applied, minimizing risk and manual intervention.
-- **Dry-run Support**: The `--plan` option allows users to preview SQL before execution.
+- **Dry-run Support**: The `--dry-run` option for `apply` allows users to preview SQL before execution.
 - **Extensibility**: The architecture is modular, making it easy to add support for new databases and features.
 
 ---
