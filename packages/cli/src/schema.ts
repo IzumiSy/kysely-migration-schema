@@ -32,5 +32,11 @@ export const configSchema = z.object({
   indexes: indexSchema.optional(),
 });
 
+export const migrationSchema = z.object({
+  id: z.string(),
+  version: z.string(),
+  diff: z.any(), // Placeholder for TableDiff type
+});
+
 export type ConfigValue = z.infer<typeof configSchema>;
 export type DialectEnum = z.infer<typeof dialectEnum>;

@@ -2,6 +2,7 @@ import { ColumnDataType, isColumnDataType, Kysely, Migration } from "kysely";
 import { TableDiff } from "./diff";
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
+import { migrationSchema } from "./schema";
 
 export const migrationDirName = "migrations";
 
@@ -10,10 +11,24 @@ type CreateMigrationProviderProps = {
   migrationDirName: string;
 };
 
-type MigrationFile = {
-  version: number;
-  id: string;
-  diff: TableDiff;
+export const readMigrationFiles = async () => {
+  try {
+    const files = await readdir(migrationDirName);
+    const migrationJSONFiles = files
+      .filter((file) => file.endsWith(".json"))
+      .map(async (file) =>
+        migrationSchema.parse(
+          JSON.parse(await readFile(join(migrationDirName, file), "utf-8"))
+        )
+      );
+    return await Promise.all(migrationJSONFiles);
+  } catch (error) {
+    if ("code" in error && error.code === "ENOENT") {
+      // Migration directory does not exist, return an empty array
+      return [];
+    }
+    throw error;
+  }
 };
 
 export const createMigrationProvider = (
@@ -21,19 +36,9 @@ export const createMigrationProvider = (
 ) => {
   return {
     getMigrations: async () => {
-      const files = await readdir(props.migrationDirName);
-      const migrationValues = await Promise.all(
-        files.map(async (file) => {
-          const contentString = await readFile(
-            join(props.migrationDirName, file),
-            "utf-8"
-          );
-          return JSON.parse(contentString) as MigrationFile;
-        })
-      );
-
+      const migrationFiles = await readMigrationFiles();
       const migrations: Record<string, Migration> = {};
-      migrationValues.forEach((migration) => {
+      migrationFiles.forEach((migration) => {
         migrations[migration.id] = {
           up: async () => {
             await buildMigrationFromDiff(props.db, migration.diff);

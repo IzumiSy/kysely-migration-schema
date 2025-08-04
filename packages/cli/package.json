@@ -26,6 +26,7 @@
     "zod": "^4.0.14"
   },
   "devDependencies": {
+    "@swc/core": "^1.13.3",
     "@types/node": "^24.1.0",
     "@types/pg": "^8.15.5",
     "prettier": "^3.6.2",

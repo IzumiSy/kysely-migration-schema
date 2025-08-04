@@ -23,7 +23,7 @@ export const getConnection = async (props: {
   };
 
   return {
-    db: new Kysely({
+    db: new Kysely<any>({
       dialect: getDialect(),
     }),
   };

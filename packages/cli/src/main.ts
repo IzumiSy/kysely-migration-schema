@@ -1,6 +1,10 @@
 import { Kysely, Migrator } from "kysely";
 import { diffTables, TableDef, TableDiff, Tables } from "./diff";
-import { createMigrationProvider, migrationDirName } from "./migration";
+import {
+  createMigrationProvider,
+  migrationDirName,
+  readMigrationFiles,
+} from "./migration";
 import { defineCommand, runMain } from "citty";
 import { getConnection } from "./introspector";
 import * as pkg from "../package.json";
@@ -13,6 +17,28 @@ const logger = createConsola({
   // Redirect console output to stderr that helps users to redirect planned SQL queries to a file
   stdout: process.stderr,
 });
+
+const getPendingMigrations = async (db: Kysely<any>) => {
+  const executedMigrations = await db
+    .selectFrom("kysely_migration")
+    .select(["name", "timestamp"])
+    .$narrowType<{ name: string; timestamp: string }>()
+    .execute()
+    .catch(() => {
+      return [];
+    });
+
+  if (executedMigrations.length === 0) {
+    return [];
+  }
+
+  const migrationFiles = await readMigrationFiles();
+  const pendingMigrations = migrationFiles.filter(
+    (file) => !executedMigrations.some((m) => m.name === file.id)
+  );
+
+  return pendingMigrations;
+};
 
 const generateCmd = defineCommand({
   meta: {
@@ -33,6 +59,18 @@ const generateCmd = defineCommand({
         database: loadedConfig.database,
       });
 
+      const pm = await getPendingMigrations(db);
+      if (pm.length > 0) {
+        logger.warn(
+          [
+            `There are pending migrations: ${pm.map((m) => m.id).join(", ")}`,
+            "Please apply them first before generating a new migration.",
+          ].join("\n")
+        );
+        await db.destroy();
+        return;
+      }
+
       const newMigration = await generateMigrationFromIntrospection({
         db,
         config: loadedConfig,
@@ -46,7 +84,7 @@ const generateCmd = defineCommand({
 
       printPrettyDiff(newMigration.diff);
 
-      const migrationFilePath = `${migrationDirName}/migration-${newMigration.id}.json`;
+      const migrationFilePath = `${migrationDirName}/${newMigration.id}.json`;
       await mkdir(migrationDirName, { recursive: true });
       await writeFile(migrationFilePath, JSON.stringify(newMigration, null, 2));
 
@@ -199,8 +237,8 @@ const generateMigrationFromIntrospection = async (props: {
 
   const migrationID = Date.now();
   return {
-    version: 1,
-    id: migrationID,
+    version: "1",
+    id: migrationID + "",
     diff,
   };
 };
