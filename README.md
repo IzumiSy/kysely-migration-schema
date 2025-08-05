@@ -18,7 +18,9 @@ npm install -g kyrage
 
 ## Usage
 
-1. Create a `kyrage.config.ts` file in your project root and define your schema (see [examples/basic](./examples/basic) for a real-world example):
+### 1. Create a `kyrage.config.ts` file 
+
+Craete a configuration file in your project root and define your schema (see [examples/basic](./examples/basic) for a real-world example):
 
 ```ts
 export default {
@@ -29,7 +31,7 @@ export default {
 };
 ```
 
-2. Define your tables
+### 2. Define your tables
 
 ```ts
 export const tables = {
@@ -72,7 +74,7 @@ export default {
 };
 ```
 
-3. Generate a migration file from the schema diff:
+### 3. Generate a migration file from the schema diff:
 
 ```bash
 $ kyrage generate
@@ -82,7 +84,7 @@ $ kyrage generate
 
 If changes are needed, `migrate` command automatically generates a new migration by comparing the local schema definition with the remote database through introspection.
 
-4. Apply the generated migration(s):
+### 4. Apply the generated migration(s):
 
 ```bash
 $ kyrage apply
