@@ -7,7 +7,7 @@
 
 > A minimal, schema-based declarative migration tool for Node.js ecosystem 
 
-**kyrage** automatically generates and applies database migrations by comparing your TypeScript schema definitions with your actual database state. No more writing migration files by hand!
+**kyrage (kirāju)** automatically generates and applies database migrations by comparing your TypeScript schema definitions with your actual database state. No more writing migration files by hand!
 
 ## Why kyrage?
 
