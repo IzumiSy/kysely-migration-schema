@@ -51,6 +51,11 @@ const generateCmd = defineCommand({
       description: "Apply the migration after generating it",
       default: false,
     },
+    "ignore-pending": {
+      type: "boolean",
+      description: "Ignore pending migrations and generate a new one",
+      default: false,
+    },
   },
   run: async (ctx) => {
     try {
@@ -59,16 +64,18 @@ const generateCmd = defineCommand({
         database: loadedConfig.database,
       });
 
-      const pm = await getPendingMigrations(db);
-      if (pm.length > 0) {
-        logger.warn(
-          [
-            `There are pending migrations: ${pm.map((m) => m.id).join(", ")}`,
-            "Please apply them first before generating a new migration.",
-          ].join("\n")
-        );
-        await db.destroy();
-        return;
+      if (!ctx.args["ignore-pending"]) {
+        const pm = await getPendingMigrations(db);
+        if (pm.length > 0) {
+          logger.warn(
+            [
+              `There are pending migrations: ${pm.map((m) => m.id).join(", ")}`,
+              "Please apply them first before generating a new migration.",
+            ].join("\n")
+          );
+          await db.destroy();
+          return;
+        }
       }
 
       const newMigration = await generateMigrationFromIntrospection({
