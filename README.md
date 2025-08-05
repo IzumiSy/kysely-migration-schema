@@ -1,132 +1,231 @@
-# kysely-schema-migrator
+# kyrage
 
-## Overview
+[![npm version](https://badge.fury.io/js/%40izumisy%2Fkyrage.svg)](https://badge.fury.io/js/%40izumisy%2Fkyrage)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D22.x-brightgreen.svg)](https://nodejs.org/)
 
-`kysely-schema-migrator` is a CLI tool that compares your defined database schema (written in a TypeScript config file) with the current state of your actual database, and executes migration from the diff if needed by using [kysely migration](https://www.kysely.dev/docs/migrations).
+> A minimal, schema-based declarative migration tool for Kysely
 
-## Installation
+**kyrage** automatically generates and applies database migrations by comparing your TypeScript schema definitions with your actual database state. No more writing migration files by hand!
+
+## Why kyrage?
+
+Traditional database migrations require manually writing up/down migration files every time you change your schema. This is error-prone and time-consuming.
+
+**kyrage** takes a different approach:
+1. ✍️ Define your desired schema in TypeScript
+2. 🔍 kyrage compares it with your actual database
+3. 🚀 Automatically generates the necessary migrations
+4. ✅ Apply migrations with a single command
+
+## 📦 Installation
 
 ```bash
-pnpm install -g kysely-schema-migrator
-# or
-npm install -g kysely-schema-migrator
+# Install globally
+npm install -g @izumisy/kyrage
+
+# Or use with npx
+npx @izumisy/kyrage --help
 ```
 
-## Usage
+## 🚀 Quick Start
 
-1. Create a `kysely-schema.config.ts` file in your project root and define your schema (see [examples/basic](./examples/basic) for a real-world example):
+### 1. Create Configuration File
 
-```ts
+Create a `kyrage.config.ts` file in your project root:
+
+```typescript
 export default {
   database: {
     dialect: "postgres",
-    connectionString: "postgres://postgres:postgres@localhost:5432/postgres",
+    connectionString: "postgres://postgres:password@localhost:5432/mydb",
   },
-  tables: {
-    members: {
-      id: {
-        type: "uuid",
-        notNull: true,
-        primaryKey: true,
-      },
-      email: {
-        type: "text",
-        notNull: true,
-        unique: true,
-      },
-      name: {
-        type: "text",
-        unique: true,
-      },
-      age: {
-        type: "int4",
-      },
-      createdAt: {
-        type: "timestamptz",
-      },
+};
+```
+
+### 2. Define Your Schema
+
+Create your table definitions (e.g., in `schema.ts`):
+
+```typescript
+export const tables = {
+  users: {
+    id: {
+      type: "uuid",
+      notNull: true,
+      primaryKey: true,
+    },
+    email: {
+      type: "text",
+      notNull: true,
+      unique: true,
+    },
+    name: {
+      type: "text",
+      notNull: true,
+    },
+    age: {
+      type: "int4",
+    },
+    createdAt: {
+      type: "timestamptz",
+      notNull: true,
+    },
+  },
+  posts: {
+    id: {
+      type: "uuid", 
+      notNull: true,
+      primaryKey: true,
+    },
+    title: {
+      type: "text",
+      notNull: true,
+    },
+    content: {
+      type: "text",
+    },
+    userId: {
+      type: "uuid",
+      notNull: true,
+      references: "users.id",
     },
   },
 };
 ```
 
-2. Generate a migration file from the schema diff:
+Add your schema to the configuration:
 
-```bash
-kysely-schema-migrator generate
+```diff
++import { tables } from "./schema";
+
+export default {
+  database: {
+    dialect: "postgres",
+    connectionString: "postgres://postgres:password@localhost:5432/mydb",
+  },
++ tables,
+};
 ```
 
-3. Apply the generated migration(s):
+### 3. Generate Migration
+
+Compare your schema with the database and generate a migration:
 
 ```bash
-kysely-schema-migrator apply
+$ kyrage generate
+-- create_table: users (id, email, name, age, createdAt) 
+-- create_table: posts (id, title, content, userId)
+-- add_foreign_key: posts.userId -> users.id
+✔ Migration file generated: migrations/1754372124127.json
 ```
+
+### 4. Apply Migration
+
+Execute the generated migrations:
+
+```bash
+$ kyrage apply
+✔ Migration applied: 1754372124127
+```
+
+## 📚 API Reference
 
 ### Commands
 
-- `kysely-schema-migrator generate`  
-  Generate migration file(s) from schema diff  
-  - `--apply` : Apply immediately after generation
+| Command | Description |
+|---------|-------------|
+| `kyrage generate` | Compare schema with database and generate migration file |
+| `kyrage apply` | Apply all pending migrations to the database |
 
-- `kysely-schema-migrator apply`  
-  Apply migrations to the database  
-  - `--dry-run` : Output SQL only (do not execute)
+### Configuration
 
-## Example Project
+Your `kyrage.config.ts` file supports the following options:
 
-A sample project is available in [examples/basic](./examples/basic):
-
-- Example `kysely-schema.config.ts`
-- Example `package.json` and `tsconfig.json`
-- You can use this as a reference for your own setup.
-
-## Supported Databases
-
-- PostgreSQL  
-  (MySQL, SQLite, MSSQL support planned)
-
-## FAQ
-
-### Q. How do I perform a dry-run to see the SQL without applying changes?
-
-Use the `--dry-run` option with the `apply` command:
-
-```bash
-kysely-schema-migrator apply --dry-run
+```typescript
+export default {
+  database: {
+    dialect: "postgres",           // Database dialect
+    connectionString: string,      // Database connection string
+  },
+  tables: {                        // Your table definitions
+    [tableName]: {
+      [columnName]: {
+        type: string,              // Column type (uuid, text, int4, etc.)
+        notNull?: boolean,         // NOT NULL constraint
+        primaryKey?: boolean,      // PRIMARY KEY constraint
+        unique?: boolean,          // UNIQUE constraint  
+      }
+    }
+  }
+}
 ```
 
-### Q. What should I do if my migration fails?
+## 🗄️ Supported Databases
 
-- Check your database connection settings and schema definitions.
-- Make sure your database is running and accessible.
-- Resolve any pending migrations before generating new ones.
-- See error messages for details.
+| Database | Status | Notes |
+|----------|--------|-------|
+| PostgreSQL | ✅ Supported | Full support with all features |
+| MySQL | 🚧 Planned | Coming soon |
+| SQLite | 🚧 Planned | Coming soon |
+| MSSQL | 🚧 Planned | Coming soon |
 
----
+## 🏗️ Examples
 
-## Recommended Workflow
+Check out the [examples/basic](./examples/basic) directory for a complete working example with:
+- Configuration setup
+- Schema definitions
+- Generated migrations
+- Applied database changes
 
-1. Edit `kysely-schema.config.ts` to update your schema.
-2. Run `kysely-schema-migrator generate` to detect diffs and generate migration files.
-3. Review the generated migration(s). If needed, use `--apply` to apply immediately.
-4. Run `kysely-schema-migrator apply` to apply migrations.
-5. Use `--dry-run` to safely preview SQL.
+## 💡 Best Practices
 
----
+### Schema Management
+- **Version Control**: Always commit your `kyrage.config.ts` and schema files
+- **Migration Files**: Keep generated migration files in version control
+- **Team Coordination**: Coordinate with your team when generating new migrations
 
-## Troubleshooting
+### Development Workflow
+1. Update your schema definitions in TypeScript
+2. Run `kyrage generate` to create migration files
+3. Review the generated migrations before applying
+4. Run `kyrage apply` to update your database
+5. Commit both schema changes and migration files
 
-- If migration fails, check for pending migrations and resolve them before generating new ones.
-- Ensure the `migrations/` directory is under version control.
-- For team development, coordinate migration generation and application to avoid conflicts.
+### Production Deployments
+- Test migrations thoroughly in staging environments
+- Run migrations as part of your deployment pipeline
+- Always backup your database before running migrations in production
 
----
+## 🔧 Troubleshooting
 
-## Design & Extensibility
+### Common Issues
 
-- Declarative schema management in TypeScript.
-- Diff-based migration: only necessary changes are applied.
-- Modular architecture for easy extension (see `DESIGN.md`).
+**Migration Generation Fails**
+- Verify database connection string and credentials
+- Ensure database server is running and accessible
+- Check that your schema definitions are valid TypeScript
 
-## License
+**Migration Application Fails**
+- Review the generated migration file for correctness
+- Ensure no conflicting migrations exist
+- Check database permissions for DDL operations
 
-MIT
+**Schema Conflicts**
+- Resolve any pending migrations before generating new ones
+- Coordinate with team members to avoid concurrent schema changes
+- Use database transactions where possible
+
+### Getting Help
+
+- Check the [examples](./examples/) directory for reference implementations
+- Review error messages carefully - they often contain helpful details
+- Ensure your `migrations/` directory exists and is writable
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit issues and pull requests.
+
+## 📄 License
+
+MIT License - see [LICENSE](./LICENSE) file for details.

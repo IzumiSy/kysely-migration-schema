@@ -1,5 +1,5 @@
 {
-  "name": "kysely-schema-migrator",
+  "name": "kyrage",
   "private": true,
   "engines": {
     "node": "22.x"
