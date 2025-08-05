@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D22.x-brightgreen.svg)](https://nodejs.org/)
 
-> A minimal, schema-based declarative migration tool for Kysely
+> A minimal, schema-based declarative migration tool for Node.js ecosystem 
 
 **kyrage** automatically generates and applies database migrations by comparing your TypeScript schema definitions with your actual database state. No more writing migration files by hand!
 
@@ -17,6 +17,8 @@ Traditional database migrations require manually writing up/down migration files
 2. 🔍 kyrage compares it with your actual database
 3. 🚀 Automatically generates the necessary migrations
 4. ✅ Apply migrations with a single command
+
+The internal migration mechanism fully depends on [kysely migration](https://www.kysely.dev/docs/migrations).
 
 ## 📦 Installation
 
@@ -85,11 +87,6 @@ export const tables = {
     content: {
       type: "text",
     },
-    userId: {
-      type: "uuid",
-      notNull: true,
-      references: "users.id",
-    },
   },
 };
 ```
@@ -115,8 +112,7 @@ Compare your schema with the database and generate a migration:
 ```bash
 $ kyrage generate
 -- create_table: users (id, email, name, age, createdAt) 
--- create_table: posts (id, title, content, userId)
--- add_foreign_key: posts.userId -> users.id
+-- create_table: posts (id, title, content)
 ✔ Migration file generated: migrations/1754372124127.json
 ```
 
