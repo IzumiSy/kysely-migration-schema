@@ -71,6 +71,7 @@ const generateCmd = defineCommand({
             [
               `There are pending migrations: ${pm.map((m) => m.id).join(", ")}`,
               "Please apply them first before generating a new migration.",
+              "Otherwise, use --ignore-pending to skip this check.",
             ].join("\n")
           );
           await db.destroy();
