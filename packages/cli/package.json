@@ -3,7 +3,7 @@
   "private": false,
   "type": "module",
   "version": "0.1.0",
-  "description": "Declative schema manager for kysely migration",
+  "description": "A minimal, schema-based declarative migration tool for Node.js ecosystem",
   "files": [
     "dist"
   ],
