@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the internal design and architecture of `kysely-schema-migrator`. It is intended for contributors and maintainers.
+This document describes the internal design and architecture of `kyrage`. It is intended for contributors and maintainers.
 
 ---
 
@@ -27,7 +27,7 @@ This document describes the internal design and architecture of `kysely-schema-m
 ## Main Flow
 
 1. **Configuration Loading**  
-   Loads and validates `kysely-schema.config.ts` using Zod schema.
+   Loads and validates `kyrage.config.ts` using Zod schema.
 
 2. **Database Introspection**  
    Connects to the target database and introspects the current schema.

@@ -1,5 +1,5 @@
 {
-  "name": "@izumisy/kysely-schema-migrator",
+  "name": "@izumisy/kyrage",
   "private": false,
   "type": "module",
   "version": "0.1.0",
@@ -8,7 +8,7 @@
     "dist"
   ],
   "bin": {
-    "kysely-schema-migrator": "./dist/main.js"
+    "kyrage": "./dist/main.js"
   },
   "scripts": {
     "dev": "NODE_ENV=development tsup --watch",

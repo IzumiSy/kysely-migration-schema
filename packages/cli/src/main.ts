@@ -259,7 +259,7 @@ const generateMigrationFromIntrospection = async (props: {
 
 const mainCmd = defineCommand({
   meta: {
-    name: "kysely-schema",
+    name: "kyrage",
     version: pkg.version,
     description: "Kysely migration CLI with declarative schema",
   },
