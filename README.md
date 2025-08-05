@@ -8,15 +8,6 @@
 
 **kyrage** automatically generates and applies database migrations by comparing your TypeScript schema definitions with your actual database state. No more writing migration files by hand!
 
-## ✨ Features
-
-- 🔄 **Declarative Schema Management** - Define your database schema in TypeScript
-- 🚀 **Automatic Migration Generation** - Compares schema vs database and creates migrations
-- 🔍 **Database Introspection** - Understands your current database structure
-- 🏗️ **Built on Kysely** - Leverages the powerful [Kysely migration system](https://www.kysely.dev/docs/migrations)
-- 📦 **TypeScript First** - Full TypeScript support with type safety
-- 🎯 **Zero Configuration** - Works out of the box with minimal setup
-
 ## Why kyrage?
 
 Traditional database migrations require manually writing up/down migration files every time you change your schema. This is error-prone and time-consuming.
@@ -26,8 +17,6 @@ Traditional database migrations require manually writing up/down migration files
 2. 🔍 kyrage compares it with your actual database
 3. 🚀 Automatically generates the necessary migrations
 4. ✅ Apply migrations with a single command
-
-Perfect for developers who love Kysely's simplicity but want to skip the manual migration writing!
 
 ## 📦 Installation
 
@@ -107,15 +96,15 @@ export const tables = {
 
 Add your schema to the configuration:
 
-```typescript
-import { tables } from "./schema";
+```diff
++import { tables } from "./schema";
 
 export default {
   database: {
     dialect: "postgres",
     connectionString: "postgres://postgres:password@localhost:5432/mydb",
   },
-  tables,
++ tables,
 };
 ```
 
@@ -138,7 +127,6 @@ Execute the generated migrations:
 ```bash
 $ kyrage apply
 ✔ Migration applied: 1754372124127
-✔ All migrations completed successfully
 ```
 
 ## 📚 API Reference
@@ -149,7 +137,6 @@ $ kyrage apply
 |---------|-------------|
 | `kyrage generate` | Compare schema with database and generate migration file |
 | `kyrage apply` | Apply all pending migrations to the database |
-| `kyrage --help` | Show help and available commands |
 
 ### Configuration
 
@@ -161,14 +148,13 @@ export default {
     dialect: "postgres",           // Database dialect
     connectionString: string,      // Database connection string
   },
-  tables: {                       // Your table definitions
+  tables: {                        // Your table definitions
     [tableName]: {
       [columnName]: {
         type: string,              // Column type (uuid, text, int4, etc.)
         notNull?: boolean,         // NOT NULL constraint
         primaryKey?: boolean,      // PRIMARY KEY constraint
         unique?: boolean,          // UNIQUE constraint  
-        references?: string,       // Foreign key reference (table.column)
       }
     }
   }
@@ -243,13 +229,3 @@ Contributions are welcome! Please feel free to submit issues and pull requests.
 ## 📄 License
 
 MIT License - see [LICENSE](./LICENSE) file for details.
-
----
-
-<div align="center">
-
-**Made with ❤️ for the Kysely community**
-
-[Report Bug](https://github.com/izumisy/kyrage/issues) • [Request Feature](https://github.com/izumisy/kyrage/issues) • [Documentation](./README.md)
-
-</div>
