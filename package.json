@@ -4,6 +4,10 @@
   "engines": {
     "node": "22.x"
   },
+  "scripts": {
+    "build": "turbo build",
+    "changeset:publish": "pnpm build && changeset publish"
+  },
   "keywords": [],
   "author": "IzumiSy",
   "license": "ISC",
