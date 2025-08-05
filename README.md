@@ -1,5 +1,6 @@
 # kyrage
 
+[![Test](https://github.com/izumisy/kyrage/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/izumisy/kyrage/actions/workflows/test.yml)
 [![npm version](https://badge.fury.io/js/%40izumisy%2Fkyrage.svg)](https://badge.fury.io/js/%40izumisy%2Fkyrage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D22.x-brightgreen.svg)](https://nodejs.org/)
