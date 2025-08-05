@@ -88,13 +88,13 @@ describe("diffTables", () => {
         addedColumns: [
           {
             column: "email",
-            definition: { type: "varchar" },
+            attributes: { type: "varchar" },
           },
         ],
         removedColumns: [
           {
             column: "age",
-            definition: { type: "integer" },
+            attributes: { type: "integer" },
           },
         ],
         changedColumns: [
