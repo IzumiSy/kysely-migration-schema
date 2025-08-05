@@ -1,6 +1,6 @@
 {
   "version": "1",
-  "id": "1754328946626",
+  "id": "1754372124127",
   "diff": {
     "addedTables": [
       {
@@ -8,27 +8,23 @@
         "columns": {
           "id": {
             "type": "uuid",
-            "notNull": false,
-            "primaryKey": true,
-            "unique": false
+            "notNull": true
           },
           "email": {
             "type": "text",
-            "notNull": true,
-            "primaryKey": false,
-            "unique": true
+            "notNull": true
           },
           "name": {
             "type": "text",
-            "notNull": false,
-            "primaryKey": false,
-            "unique": true
+            "notNull": false
           },
           "age": {
             "type": "int4",
-            "notNull": false,
-            "primaryKey": false,
-            "unique": false
+            "notNull": false
+          },
+          "createdAt": {
+            "type": "timestamptz",
+            "notNull": false
           }
         }
       }
