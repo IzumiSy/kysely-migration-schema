@@ -1,18 +1,18 @@
-import { column, defineTable } from "@izumisy/kyrage";
+import { column as c, defineTable as t } from "@izumisy/kyrage";
 
-export const members = defineTable("members", {
-  id: column("uuid", { primaryKey: true }),
-  email: column("text", { unique: true }),
-  name: column("text", { unique: true }),
-  age: column("integer", { nullable: true }),
-  createdAt: column("timestamptz"),
+export const members = t("members", {
+  id: c("uuid", { primaryKey: true }),
+  email: c("text", { unique: true }),
+  name: c("text", { unique: true }),
+  age: c("integer", { nullable: true }),
+  createdAt: c("timestamptz"),
 });
 
-export const posts = defineTable("posts", {
-  id: column("uuid", { primaryKey: true }),
-  author_id: column("uuid"),
-  title: column("text"),
-  content: column("text"),
-  published: column("boolean", { default: false }),
-  published_at: column("timestamptz", { nullable: true }),
+export const posts = t("posts", {
+  id: c("uuid", { primaryKey: true }),
+  author_id: c("uuid"),
+  title: c("text"),
+  content: c("text"),
+  published: c("boolean", { default: false }),
+  published_at: c("timestamptz", { nullable: true }),
 });
