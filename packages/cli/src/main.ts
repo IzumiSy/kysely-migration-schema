@@ -6,7 +6,7 @@ import {
   readMigrationFiles,
 } from "./migration";
 import { defineCommand, runMain } from "citty";
-import { getConnection } from "./introspector";
+import { getClient } from "./introspector";
 import * as pkg from "../package.json";
 import { createConsola } from "consola";
 import { loadConfigFile } from "./config";
@@ -60,7 +60,7 @@ const generateCmd = defineCommand({
   run: async (ctx) => {
     try {
       const loadedConfig = await loadConfigFile();
-      const { db } = await getConnection({
+      const { db } = await getClient({
         database: loadedConfig.database,
       });
 
@@ -126,7 +126,7 @@ const applyCmd = defineCommand({
   run: async (ctx) => {
     try {
       const loadedConfig = await loadConfigFile();
-      const { db } = await getConnection({
+      const { db } = await getClient({
         database: loadedConfig.database,
       });
 

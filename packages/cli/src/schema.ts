@@ -22,7 +22,7 @@ const indexSchema = z.record(
   })
 );
 
-const dialectEnum = z.enum(["postgres", "mysql", "sqlite", "mssql"]);
+const dialectEnum = z.enum(["postgres", "cockroachdb", "mysql", "sqlite"]);
 const databaseSchema = z.object({
   dialect: dialectEnum,
   connectionString: z.string(),
