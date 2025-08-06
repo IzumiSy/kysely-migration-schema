@@ -3,6 +3,6 @@
   "private": true,
   "devDependencies": {
     "@izumisy/kyrage": "workspace:^",
-    "kysely": "^0.28.3"
+    "kysely": "^0.28.4"
   }
 }
