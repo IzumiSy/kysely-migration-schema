@@ -12,7 +12,7 @@ const devOpts =
 
 export default defineConfig({
   format: ["esm"],
-  entryPoints: ["src/main.ts"],
+  entry: ["src/main.ts", "src/index.ts"],
   dts: true,
   minify: true,
   clean: true,
