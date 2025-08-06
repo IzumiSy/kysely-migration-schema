@@ -6,7 +6,7 @@ import {
   readMigrationFiles,
 } from "./migration";
 import { defineCommand, runMain } from "citty";
-import { getClient } from "./introspector";
+import { getClient } from "./client";
 import * as pkg from "../package.json";
 import { createConsola } from "consola";
 import { loadConfigFile } from "./config";

@@ -7,3 +7,5 @@ export const loadConfigFile = async () => {
   });
   return configSchema.parse(loadedConfig.config);
 };
+
+export const defineConfig = (config: ConfigValue) => config;
