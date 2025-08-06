@@ -31,7 +31,9 @@ export const defineTable = <T extends Record<string, ColumnDefinition>>(
   columns: T
 ) => {
   return {
-    _kyrage_table_name: name,
-    ...columns,
+    tableName: name,
+    columns,
   };
 };
+
+export type DefinedTable = ReturnType<typeof defineTable>;

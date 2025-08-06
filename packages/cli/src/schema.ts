@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-const tableSchema = z.record(
-  z.string(),
-  z.record(
+const tableSchema = z.object({
+  tableName: z.string(),
+  columns: z.record(
     z.string(),
     z.object({
       type: z.string(),
@@ -10,8 +10,8 @@ const tableSchema = z.record(
       notNull: z.boolean().optional().default(false),
       unique: z.boolean().optional().default(false),
     })
-  )
-);
+  ),
+});
 
 const indexSchema = z.record(
   z.string(),
