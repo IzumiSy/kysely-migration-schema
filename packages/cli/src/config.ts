@@ -5,6 +5,5 @@ export const loadConfigFile = async () => {
   const loadedConfig = await loadConfig<ConfigValue>({
     name: "kyrage",
   });
-
   return configSchema.parse(loadedConfig.config);
 };
