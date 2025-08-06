@@ -38,12 +38,14 @@ npx @izumisy/kyrage --help
 Create a `kyrage.config.ts` file in your project root:
 
 ```typescript
-export default {
+import { defineConfig } from "@izumisy/kyrage";
+
+export default defineConfig({
   database: {
     dialect: "postgres",
     connectionString: "postgres://postgres:password@localhost:5432/mydb",
   },
-};
+});
 ```
 
 ### 2. Define Your Schema
@@ -74,15 +76,16 @@ export const posts = t("posts", {
 Add your schema to the configuration:
 
 ```diff
+import { defineConfig } from "@izumisy/kyrage";
 +import { members, posts } from "./schema";
 
-export default {
+export default defineConfig({
   database: {
     dialect: "postgres",
     connectionString: "postgres://postgres:password@localhost:5432/mydb",
   },
 + tables: [members, posts],
-};
+});
 ```
 
 ### 3. Generate Migration

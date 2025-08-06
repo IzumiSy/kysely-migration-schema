@@ -23,16 +23,19 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "better-sqlite3": "^12.2.0",
     "c12": "^3.2.0",
     "citty": "^0.1.6",
     "consola": "^3.4.2",
     "kysely": "^0.28.4",
     "kysely-codegen": "^0.18.5",
+    "mysql2": "^3.14.3",
     "pg": "^8.16.3",
     "zod": "^4.0.14"
   },
   "devDependencies": {
     "@swc/core": "^1.13.3",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.2.0",
     "@types/pg": "^8.15.5",
     "prettier": "^3.6.2",
