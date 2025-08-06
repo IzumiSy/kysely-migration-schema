@@ -3,13 +3,16 @@ export type TableColumnAttributes = {
   [key: string]: unknown;
 };
 
-export type TableDef = Record<string, TableColumnAttributes>;
-export type Tables = Record<string, TableDef>;
+export type TableDef = {
+  name: string;
+  columns: Record<string, TableColumnAttributes>;
+};
+export type Tables = Array<TableDef>;
 
 // 追加テーブル
 export type AddedTable = {
   table: string;
-  columns: TableDef;
+  columns: Record<string, TableColumnAttributes>;
 };
 
 // 削除テーブル（テーブル名のみでOK）
@@ -54,75 +57,80 @@ export function diffTables(props: {
   ideal: Tables;
 }): TableDiff {
   const { current: currentTables, ideal: idealTables } = props;
-  const dbTableNames = Object.keys(currentTables);
-  const configTableNames = Object.keys(idealTables);
+  const dbTableNames = currentTables.map((t) => t.name);
+  const configTableNames = idealTables.map((t) => t.name);
 
   // 追加テーブル: テーブル名＋カラム定義
-  const addedTables = configTableNames
-    .filter((t) => !dbTableNames.includes(t))
+  const addedTables = idealTables
+    .filter((t) => !dbTableNames.includes(t.name))
     .map((table) => ({
-      table,
-      columns: idealTables[table],
+      table: table.name,
+      columns: table.columns,
     }));
 
   // 削除テーブル: テーブル名のみ
-  const removedTables = dbTableNames.filter(
-    (t) => !configTableNames.includes(t)
-  );
+  const removedTables = currentTables
+    .filter((t) => !configTableNames.includes(t.name))
+    .map((t) => t.name);
 
   // テーブルごとのカラム差分
-  const changedTables = dbTableNames.reduce<ChangedTable[]>((acc, table) => {
-    if (!configTableNames.includes(table)) return acc;
-    const dbCols = currentTables[table];
-    const configCols = idealTables[table];
-    const dbColNames = Object.keys(dbCols);
-    const configColNames = Object.keys(configCols);
+  const changedTables = currentTables.reduce<ChangedTable[]>(
+    (acc, currentTable) => {
+      const idealTable = idealTables.find((t) => t.name === currentTable.name);
+      if (!idealTable) return acc;
 
-    // 追加カラム: カラム名＋型情報
-    const addedColumns = configColNames
-      .filter((c) => !dbColNames.includes(c))
-      .map((column) => ({
-        column,
-        attributes: configCols[column],
-      }));
+      const dbCols = currentTable.columns;
+      const configCols = idealTable.columns;
+      const dbColNames = Object.keys(dbCols);
+      const configColNames = Object.keys(configCols);
 
-    // 削除カラム: カラム名＋型情報（削除前の型）
-    const removedColumns = dbColNames
-      .filter((c) => !configColNames.includes(c))
-      .map((column) => ({
-        column,
-        attributes: dbCols[column],
-      }));
+      // 追加カラム: カラム名＋型情報
+      const addedColumns = configColNames
+        .filter((c) => !dbColNames.includes(c))
+        .map((column) => ({
+          column,
+          attributes: configCols[column],
+        }));
 
-    // 型変更カラム: before/after型情報
-    // Changes on primaryKey and unique are not supported in current implementation
-    const changedColumns = dbColNames
-      .filter(
-        (c) =>
-          configColNames.includes(c) &&
-          (dbCols[c].type !== configCols[c].type ||
-            dbCols[c].notNull !== configCols[c].notNull)
-      )
-      .map((column) => ({
-        column,
-        before: dbCols[column],
-        after: configCols[column],
-      }));
+      // 削除カラム: カラム名＋型情報（削除前の型）
+      const removedColumns = dbColNames
+        .filter((c) => !configColNames.includes(c))
+        .map((column) => ({
+          column,
+          attributes: dbCols[column],
+        }));
 
-    if (
-      addedColumns.length > 0 ||
-      removedColumns.length > 0 ||
-      changedColumns.length > 0
-    ) {
-      acc.push({
-        table,
-        addedColumns,
-        removedColumns,
-        changedColumns,
-      });
-    }
-    return acc;
-  }, []);
+      // 型変更カラム: before/after型情報
+      // Changes on primaryKey and unique are not supported in current implementation
+      const changedColumns = dbColNames
+        .filter(
+          (c) =>
+            configColNames.includes(c) &&
+            (dbCols[c].type !== configCols[c].type ||
+              dbCols[c].notNull !== configCols[c].notNull)
+        )
+        .map((column) => ({
+          column,
+          before: dbCols[column],
+          after: configCols[column],
+        }));
+
+      if (
+        addedColumns.length > 0 ||
+        removedColumns.length > 0 ||
+        changedColumns.length > 0
+      ) {
+        acc.push({
+          table: currentTable.name,
+          addedColumns,
+          removedColumns,
+          changedColumns,
+        });
+      }
+      return acc;
+    },
+    []
+  );
 
   return {
     addedTables,

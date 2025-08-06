@@ -1,5 +1,5 @@
 import { Kysely, Migrator } from "kysely";
-import { diffTables, TableDef, TableDiff, Tables } from "./diff";
+import { diffTables, TableColumnAttributes, TableDiff, Tables } from "./diff";
 import {
   createMigrationProvider,
   migrationDirName,
@@ -217,32 +217,34 @@ const generateMigrationFromIntrospection = async (props: {
 }) => {
   const { db, config } = props;
   const tables = await db.introspection.getTables();
-  const dbTables = tables.reduce<Tables>((acc, table) => {
-    acc[table.name] = (table.columns ?? []).reduce<TableDef>((cols, col) => {
-      cols[col.name] = {
-        type: col.dataType,
-        notNull: !col.isNullable,
-      };
-      return cols;
-    }, {});
-    return acc;
-  }, {});
-  const configTables = Object.fromEntries(
-    Object.entries(config.tables).map(([tableName, columns]) => [
-      tableName,
-      Object.fromEntries(
-        Object.entries(columns).map(([colName, colDef]) => [
-          colName,
-          {
-            type: colDef.type,
-            notNull: colDef.notNull,
-            primaryKey: colDef.primaryKey,
-            unique: colDef.unique,
-          },
-        ])
-      ),
-    ])
-  );
+  const dbTables: Tables = tables.map((table) => ({
+    name: table.name,
+    columns: (table.columns ?? []).reduce(
+      (cols, col) => {
+        cols[col.name] = {
+          type: col.dataType,
+          notNull: !col.isNullable,
+        };
+        return cols;
+      },
+      {} as Record<string, TableColumnAttributes>
+    ),
+  }));
+
+  const configTables: Tables = config.tables.map((table) => ({
+    name: table.tableName,
+    columns: Object.fromEntries(
+      Object.entries(table.columns).map(([colName, colDef]) => [
+        colName,
+        {
+          type: colDef.type,
+          notNull: colDef.notNull,
+          primaryKey: colDef.primaryKey,
+          unique: colDef.unique,
+        },
+      ])
+    ),
+  }));
 
   const diff = diffTables({
     current: dbTables,

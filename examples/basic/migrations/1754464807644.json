@@ -1,0 +1,86 @@
+{
+  "version": "1",
+  "id": "1754464807644",
+  "diff": {
+    "addedTables": [
+      {
+        "table": "members",
+        "columns": {
+          "id": {
+            "type": "uuid",
+            "notNull": true,
+            "primaryKey": true,
+            "unique": false
+          },
+          "email": {
+            "type": "text",
+            "notNull": true,
+            "primaryKey": false,
+            "unique": true
+          },
+          "name": {
+            "type": "text",
+            "notNull": true,
+            "primaryKey": false,
+            "unique": true
+          },
+          "age": {
+            "type": "integer",
+            "notNull": false,
+            "primaryKey": false,
+            "unique": false
+          },
+          "createdAt": {
+            "type": "timestamptz",
+            "notNull": true,
+            "primaryKey": false,
+            "unique": false
+          }
+        }
+      },
+      {
+        "table": "posts",
+        "columns": {
+          "id": {
+            "type": "uuid",
+            "notNull": true,
+            "primaryKey": true,
+            "unique": false
+          },
+          "author_id": {
+            "type": "uuid",
+            "notNull": true,
+            "primaryKey": false,
+            "unique": false
+          },
+          "title": {
+            "type": "text",
+            "notNull": true,
+            "primaryKey": false,
+            "unique": false
+          },
+          "content": {
+            "type": "text",
+            "notNull": true,
+            "primaryKey": false,
+            "unique": false
+          },
+          "published": {
+            "type": "boolean",
+            "notNull": true,
+            "primaryKey": false,
+            "unique": false
+          },
+          "published_at": {
+            "type": "timestamptz",
+            "notNull": false,
+            "primaryKey": false,
+            "unique": false
+          }
+        }
+      }
+    ],
+    "removedTables": [],
+    "changedTables": []
+  }
+}
