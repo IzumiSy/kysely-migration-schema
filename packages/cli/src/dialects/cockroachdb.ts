@@ -1,13 +1,17 @@
-import { PostgresAdapter, PostgresDialect } from "kysely";
+import {
+  Kysely,
+  MigrationLockOptions,
+  PostgresAdapter,
+  PostgresDialect,
+} from "kysely";
 
 // Ref: https://github.com/kysely-org/kysely/issues/325#issuecomment-1426878934
 class CockroachDBAdapter extends PostgresAdapter {
-  override get supportsTransactionalDdl() {
-    return false;
-  }
-
-  override async acquireMigrationLock(): Promise<void> {
-    // CockroachDB does not support transactional DDL, so we do not need to acquire a lock.
+  override async acquireMigrationLock(
+    db: Kysely<any>,
+    options: MigrationLockOptions
+  ): Promise<void> {
+    await db.selectFrom(options.lockTable).selectAll().forUpdate().execute();
   }
 }
 
