@@ -51,58 +51,37 @@ export default {
 Create your table definitions (e.g., in `schema.ts`):
 
 ```typescript
-export const tables = {
-  users: {
-    id: {
-      type: "uuid",
-      notNull: true,
-      primaryKey: true,
-    },
-    email: {
-      type: "text",
-      notNull: true,
-      unique: true,
-    },
-    name: {
-      type: "text",
-      notNull: true,
-    },
-    age: {
-      type: "int4",
-    },
-    createdAt: {
-      type: "timestamptz",
-      notNull: true,
-    },
-  },
-  posts: {
-    id: {
-      type: "uuid", 
-      notNull: true,
-      primaryKey: true,
-    },
-    title: {
-      type: "text",
-      notNull: true,
-    },
-    content: {
-      type: "text",
-    },
-  },
-};
+import { column as c, defineTable as t } from "@izumisy/kyrage";
+
+export const members = t("members", {
+  id: c("uuid", { primaryKey: true }),
+  email: c("text", { unique: true }),
+  name: c("text", { unique: true }),
+  age: c("integer", { nullable: true }),
+  createdAt: c("timestamptz"),
+});
+
+export const posts = t("posts", {
+  id: c("uuid", { primaryKey: true }),
+  author_id: c("uuid"),
+  title: c("text"),
+  content: c("text"),
+  published: c("boolean", { default: false }),
+  published_at: c("timestamptz", { nullable: true }),
+});
 ```
 
 Add your schema to the configuration:
 
 ```diff
-+import { tables } from "./schema";
++import { members, posts } from "./schema";
 
 export default {
   database: {
     dialect: "postgres",
     connectionString: "postgres://postgres:password@localhost:5432/mydb",
   },
-+ tables,
++ tables: [members, posts],
 };
 ```
 
@@ -112,8 +91,8 @@ Compare your schema with the database and generate a migration:
 
 ```bash
 $ kyrage generate
--- create_table: users (id, email, name, age, createdAt) 
--- create_table: posts (id, title, content)
+-- create_table: members (id, email, name, age, createdAt) 
+-- create_table: posts (id, author_id, title, content, published, published_at)
 ✔ Migration file generated: migrations/1754372124127.json
 ```
 
@@ -140,21 +119,24 @@ $ kyrage apply
 Your `kyrage.config.ts` file supports the following options:
 
 ```typescript
+import { column as c, defineTable as t } from "@izumisy/kyrage";
+
 export default {
   database: {
     dialect: "postgres",           // Database dialect
     connectionString: string,      // Database connection string
   },
-  tables: {                        // Your table definitions
-    [tableName]: {
-      [columnName]: {
-        type: string,              // Column type (uuid, text, int4, etc.)
-        notNull?: boolean,         // NOT NULL constraint
+  tables: [                        // Array of table definitions
+    t("tableName", {               // Use defineTable function
+      columnName: c("type", {      // Use column function
         primaryKey?: boolean,      // PRIMARY KEY constraint
-        unique?: boolean,          // UNIQUE constraint  
-      }
-    }
-  }
+        unique?: boolean,          // UNIQUE constraint
+        nullable?: boolean,        // Allow NULL values
+        default?: any,             // Default value
+      })
+    }),
+    // ... more tables
+  ]
 }
 ```
 
