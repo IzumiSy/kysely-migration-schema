@@ -3,19 +3,28 @@ import { diffTables, Tables } from "../diff";
 
 describe("diffTables", () => {
   it("should detect added and removed tables", () => {
-    const dbTables: Tables = {
-      users: {
-        id: { type: "integer" },
+    const dbTables: Tables = [
+      {
+        name: "users",
+        columns: {
+          id: { type: "integer" },
+        },
       },
-    };
-    const configTables: Tables = {
-      users: {
-        id: { type: "integer" },
+    ];
+    const configTables: Tables = [
+      {
+        name: "users",
+        columns: {
+          id: { type: "integer" },
+        },
       },
-      posts: {
-        id: { type: "integer" },
+      {
+        name: "posts",
+        columns: {
+          id: { type: "integer" },
+        },
       },
-    };
+    ];
 
     const diff = diffTables({
       current: dbTables,
@@ -35,19 +44,28 @@ describe("diffTables", () => {
   });
 
   it("should detect removed tables", () => {
-    const dbTables: Tables = {
-      users: {
-        id: { type: "integer" },
+    const dbTables: Tables = [
+      {
+        name: "users",
+        columns: {
+          id: { type: "integer" },
+        },
       },
-      posts: {
-        id: { type: "integer" },
+      {
+        name: "posts",
+        columns: {
+          id: { type: "integer" },
+        },
       },
-    };
-    const configTables: Tables = {
-      users: {
-        id: { type: "integer" },
+    ];
+    const configTables: Tables = [
+      {
+        name: "users",
+        columns: {
+          id: { type: "integer" },
+        },
       },
-    };
+    ];
 
     const diff = diffTables({
       current: dbTables,
@@ -60,20 +78,26 @@ describe("diffTables", () => {
   });
 
   it("should detect added, removed, and changed columns", () => {
-    const dbTables: Tables = {
-      users: {
-        id: { type: "integer" },
-        name: { type: "varchar" },
-        age: { type: "integer" },
+    const dbTables: Tables = [
+      {
+        name: "users",
+        columns: {
+          id: { type: "integer" },
+          name: { type: "varchar" },
+          age: { type: "integer" },
+        },
       },
-    };
-    const configTables: Tables = {
-      users: {
-        id: { type: "integer" },
-        name: { type: "text" }, // type changed
-        email: { type: "varchar" }, // added
+    ];
+    const configTables: Tables = [
+      {
+        name: "users",
+        columns: {
+          id: { type: "integer" },
+          name: { type: "text" }, // type changed
+          email: { type: "varchar" }, // added
+        },
       },
-    };
+    ];
 
     const diff = diffTables({
       current: dbTables,
@@ -109,18 +133,24 @@ describe("diffTables", () => {
   });
 
   it("should return empty diff for identical tables", () => {
-    const dbTables: Tables = {
-      users: {
-        id: { type: "integer" },
-        name: { type: "varchar" },
+    const dbTables: Tables = [
+      {
+        name: "users",
+        columns: {
+          id: { type: "integer" },
+          name: { type: "varchar" },
+        },
       },
-    };
-    const configTables: Tables = {
-      users: {
-        id: { type: "integer" },
-        name: { type: "varchar" },
+    ];
+    const configTables: Tables = [
+      {
+        name: "users",
+        columns: {
+          id: { type: "integer" },
+          name: { type: "varchar" },
+        },
       },
-    };
+    ];
 
     const diff = diffTables({
       current: dbTables,

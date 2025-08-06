@@ -30,8 +30,8 @@ const databaseSchema = z.object({
 
 export const configSchema = z.object({
   database: databaseSchema,
-  tables: tableSchema,
-  indexes: indexSchema.optional(),
+  tables: z.array(tableSchema),
+  indexes: z.array(indexSchema).optional(),
 });
 
 export const migrationSchema = z.object({

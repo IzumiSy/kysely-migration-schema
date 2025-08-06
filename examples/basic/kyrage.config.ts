@@ -5,8 +5,5 @@ export default {
     dialect: "postgres",
     connectionString: "postgres://postgres:postgres@localhost:5432/postgres",
   },
-  tables: {
-    members,
-    posts,
-  },
+  tables: [members, posts],
 };
