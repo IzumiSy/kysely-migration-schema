@@ -19,7 +19,7 @@ Traditional database migrations require manually writing up/down migration files
 3. 🚀 Automatically generates the necessary migrations
 4. ✅ Apply migrations with a single command
 
-The internal migration mechanism fully depends on [kysely migration](https://www.kysely.dev/docs/migrations).
+This is a style of managing database schema that is called as [Versioned Migration Authoring](https://atlasgo.io/blog/2022/08/11/announcing-versioned-migration-authoring) by Atlas. 
 
 ## 📦 Installation
 
