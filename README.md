@@ -145,12 +145,10 @@ export default {
 
 ## 🗄️ Supported Databases
 
-| Database | Status | Notes |
-|----------|--------|-------|
-| PostgreSQL | ✅ Supported | Full support with all features |
-| MySQL | 🚧 Planned | Coming soon |
-| SQLite | 🚧 Planned | Coming soon |
-| MSSQL | 🚧 Planned | Coming soon |
+* PostgreSQL
+* MySQL
+* SQLite
+* CockroachDB
 
 ## 🏗️ Examples
 
