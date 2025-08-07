@@ -65,7 +65,7 @@ const generateCmd = defineCommand({
   run: async (ctx) => {
     try {
       const loadedConfig = await loadConfigFile();
-      const client = await getClient({
+      await using client = await getClient({
         database: loadedConfig.database,
       });
       const db = client.getDB();
@@ -80,7 +80,6 @@ const generateCmd = defineCommand({
               "Otherwise, use --ignore-pending to skip this check.",
             ].join("\n")
           );
-          await db.destroy();
           return;
         }
       }
@@ -92,11 +91,8 @@ const generateCmd = defineCommand({
 
       if (!newMigration) {
         logger.info("No changes detected, no migration needed.");
-        await db.destroy();
         return;
       }
-
-      await db.destroy();
 
       printPrettyDiff(newMigration.diff);
 
@@ -154,7 +150,7 @@ const applyCmd = defineCommand({
 });
 
 const runApply = async (props: { clientProps: GetClientProps }) => {
-  const client = await getClient(props.clientProps);
+  await using client = await getClient(props.clientProps);
   const db = client.getDB();
   const migrator = new Migrator({
     db,
@@ -168,8 +164,7 @@ const runApply = async (props: { clientProps: GetClientProps }) => {
     await migrator.migrateToLatest();
 
   if (props.clientProps.options?.plan) {
-    const plannedQueries = client.getPlannedQueries();
-    plannedQueries.forEach((query) => {
+    client.getPlannedQueries().forEach((query) => {
       console.log(query.sql);
     });
     return;
@@ -189,11 +184,8 @@ const runApply = async (props: { clientProps: GetClientProps }) => {
 
   if (migrationError) {
     logger.error(`Migration error: ${migrationError}`);
-    await db.destroy();
     process.exit(1);
   }
-
-  await db.destroy();
 };
 
 const printPrettyDiff = (diff: TableDiff) => {

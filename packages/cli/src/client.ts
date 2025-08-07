@@ -91,7 +91,7 @@ class DBClient {
     return this.plannedQueries;
   }
 
-  async close() {
+  async [Symbol.asyncDispose]() {
     await this.db.destroy();
   }
 }
