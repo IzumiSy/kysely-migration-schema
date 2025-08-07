@@ -99,9 +99,19 @@ $ kyrage generate
 ✔ Migration file generated: migrations/1754372124127.json
 ```
 
+`generate` command will fail if there is a pending migration. Use `--ignore-pending` option in that case.
+
 ### 4. Apply Migration
 
-Execute the generated migrations:
+You can use `--plan` option beforehand to check SQL queries that will be executed in the next time:
+
+```bash
+$ kyrage apply --plan
+create table "members" ("id" uuid not null primary key, "email" text not null unique, "name" text not null unique, "age" integer, "createdAt" timestamptz not null)
+create table "posts" ("id" uuid not null primary key, "author_id" uuid not null, "title" text not null, "content" text not null, "published" boolean not null, "published_at" timestamptz)
+```
+
+If everything looks good, execute the generated migrations:
 
 ```bash
 $ kyrage apply
