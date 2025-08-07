@@ -1,5 +1,11 @@
 # @izumisy/kyrage
 
+## 0.4.0
+
+### Minor Changes
+
+- 6049629: Support default/check for columns
+
 ## 0.3.0
 
 ### Minor Changes
