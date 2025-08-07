@@ -6,7 +6,7 @@ import {
   readMigrationFiles,
 } from "./migration";
 import { defineCommand, runMain } from "citty";
-import { getClient } from "./client";
+import { getClient, GetClientProps } from "./client";
 import * as pkg from "../package.json";
 import { createConsola } from "consola";
 import { loadConfigFile } from "./config";
@@ -51,6 +51,11 @@ const generateCmd = defineCommand({
       description: "Apply the migration after generating it",
       default: false,
     },
+    plan: {
+      type: "boolean",
+      description: "Plan the migration without applying it (only for --apply)",
+      default: false,
+    },
     "ignore-pending": {
       type: "boolean",
       description: "Ignore pending migrations and generate a new one",
@@ -60,9 +65,10 @@ const generateCmd = defineCommand({
   run: async (ctx) => {
     try {
       const loadedConfig = await loadConfigFile();
-      const { db } = await getClient({
+      const client = await getClient({
         database: loadedConfig.database,
       });
+      const db = client.getDB();
 
       if (!ctx.args["ignore-pending"]) {
         const pm = await getPendingMigrations(db);
@@ -90,6 +96,8 @@ const generateCmd = defineCommand({
         return;
       }
 
+      await db.destroy();
+
       printPrettyDiff(newMigration.diff);
 
       const migrationFilePath = `${migrationDirName}/${newMigration.id}.json`;
@@ -99,10 +107,13 @@ const generateCmd = defineCommand({
       logger.success(`Migration file generated: ${migrationFilePath}`);
 
       if (ctx.args.apply) {
-        await runApply({ db, dryRun: false });
+        await runApply({
+          clientProps: {
+            database: loadedConfig.database,
+            options: { plan: ctx.args.plan },
+          },
+        });
       }
-
-      await db.destroy();
     } catch (error) {
       logger.error(error);
       process.exit(1);
@@ -116,22 +127,25 @@ const applyCmd = defineCommand({
     description: "Run migrations to sync database schema",
   },
   args: {
-    "dry-run": {
-      name: "dryRun",
+    plan: {
+      name: "plan",
       type: "boolean",
-      description: "Run the migration in dry-run mode",
+      description: "Plan the migration without applying it",
       default: false,
     },
   },
   run: async (ctx) => {
     try {
       const loadedConfig = await loadConfigFile();
-      const { db } = await getClient({
-        database: loadedConfig.database,
-      });
 
-      await runApply({ db, dryRun: ctx.args["dry-run"] });
-      await db.destroy();
+      await runApply({
+        clientProps: {
+          database: loadedConfig.database,
+          options: {
+            plan: ctx.args.plan,
+          },
+        },
+      });
     } catch (error) {
       logger.error(error);
       process.exit(1);
@@ -139,8 +153,9 @@ const applyCmd = defineCommand({
   },
 });
 
-const runApply = async (props: { db: Kysely<unknown>; dryRun: boolean }) => {
-  const { db } = props;
+const runApply = async (props: { clientProps: GetClientProps }) => {
+  const client = await getClient(props.clientProps);
+  const db = client.getDB();
   const migrator = new Migrator({
     db,
     provider: createMigrationProvider({
@@ -151,6 +166,14 @@ const runApply = async (props: { db: Kysely<unknown>; dryRun: boolean }) => {
 
   const { results: migrationResults, error: migrationError } =
     await migrator.migrateToLatest();
+
+  if (props.clientProps.options?.plan) {
+    const plannedQueries = client.getPlannedQueries();
+    plannedQueries.forEach((query) => {
+      console.log(query.sql);
+    });
+    return;
+  }
 
   if (migrationResults && migrationResults.length > 0) {
     migrationResults.forEach((result) => {
@@ -166,8 +189,11 @@ const runApply = async (props: { db: Kysely<unknown>; dryRun: boolean }) => {
 
   if (migrationError) {
     logger.error(`Migration error: ${migrationError}`);
+    await db.destroy();
     process.exit(1);
   }
+
+  await db.destroy();
 };
 
 const printPrettyDiff = (diff: TableDiff) => {
