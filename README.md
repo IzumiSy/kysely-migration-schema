@@ -155,8 +155,9 @@ export default {
       columnName: c("type", {      // Use column function
         primaryKey?: boolean,      // PRIMARY KEY constraint
         unique?: boolean,          // UNIQUE constraint
-        nullable?: boolean,        // Allow NULL values
-        default?: any,             // Default value
+        notNull?: boolean,         // NOT NULL constraint 
+        defaultSql?: string,       // Default SQL expression
+        checkSql?: string,         // Check SQL expression
       })
     }),
     // ... more tables
