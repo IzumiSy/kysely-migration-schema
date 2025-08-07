@@ -93,10 +93,20 @@ export default defineConfig({
 Compare your schema with the database and generate a migration:
 
 ```bash
-$ kyrage generate
--- create_table: members (id, email, name, age, createdAt) 
--- create_table: posts (id, author_id, title, content, published, published_at)
-✔ Migration file generated: migrations/1754372124127.json
+-- create_table: members
+   -> column: id ({"type":"uuid","primaryKey":true,"notNull":false "unique":false})
+   -> column: email ({"type":"text","primaryKey":false,"notNull":true,"unique":true})
+   -> column: name ({"type":"text","primaryKey":false,"notNull":false,"unique":true})
+   -> column: age ({"type":"integer","primaryKey":false,"notNull":false,"unique":false})
+   -> column: createdAt ({"type":"timestamptz","primaryKey":false,"notNull":false,"unique":false,"defaultSql":"now()"})
+-- create_table: posts
+   -> column: id ({"type":"uuid","primaryKey":true,"notNull":false,"unique":false})
+   -> column: author_id ({"type":"uuid","primaryKey":false,"notNull":true,"unique":false})
+   -> column: title ({"type":"text","primaryKey":false,"notNull":true,"unique":false})
+   -> column: content ({"type":"text","primaryKey":false,"notNull":true,"unique":false})
+   -> column: published ({"type":"boolean","primaryKey":false,"notNull":false,"unique":false,"defaultSql":"false"})
+   -> column: published_at ({"type":"timestamptz","primaryKey":false,"notNull":false,"unique":false,"defaultSql":"now()"})
+✔ Migration file generated: migrations/1754553798672.json
 ```
 
 `generate` command will fail if there is a pending migration. Use `--ignore-pending` option in that case.
