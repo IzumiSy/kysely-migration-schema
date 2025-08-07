@@ -1,4 +1,10 @@
-import { ColumnDataType, isColumnDataType, Kysely, Migration } from "kysely";
+import {
+  ColumnDataType,
+  isColumnDataType,
+  Kysely,
+  Migration,
+  sql,
+} from "kysely";
 import { TableDiff } from "./diff";
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
@@ -66,6 +72,9 @@ export async function buildMigrationFromDiff(
         if (colDef.notNull) c = c.notNull();
         if (colDef.primaryKey) c = c.primaryKey();
         if (colDef.unique) c = c.unique();
+        if (colDef.defaultSql)
+          c = c.defaultTo(sql.raw(colDef.defaultSql as string));
+        if (colDef.checkSql) c = c.check(sql.raw(colDef.checkSql as string));
         return c;
       });
     }
@@ -90,6 +99,12 @@ export async function buildMigrationFromDiff(
           if (addCol.attributes.notNull) c = c.notNull();
           if (addCol.attributes.primaryKey) c = c.primaryKey();
           if (addCol.attributes.unique) c = c.unique();
+          if (addCol.attributes.defaultSql) {
+            c = c.defaultTo(sql.raw(addCol.attributes.defaultSql as string));
+          }
+          if (addCol.attributes.checkSql) {
+            c = c.check(sql.raw(addCol.attributes.checkSql as string));
+          }
           return c;
         })
         .execute();

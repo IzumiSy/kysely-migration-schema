@@ -57,19 +57,19 @@ import { column as c, defineTable as t } from "@izumisy/kyrage";
 
 export const members = t("members", {
   id: c("uuid", { primaryKey: true }),
-  email: c("text", { unique: true }),
+  email: c("text", { unique: true, notNull: true }),
   name: c("text", { unique: true }),
-  age: c("integer", { nullable: true }),
-  createdAt: c("timestamptz"),
+  age: c("integer"),
+  createdAt: c("timestamptz", { defaultSql: "now()" }),
 });
 
 export const posts = t("posts", {
   id: c("uuid", { primaryKey: true }),
-  author_id: c("uuid"),
-  title: c("text"),
-  content: c("text"),
-  published: c("boolean", { default: false }),
-  published_at: c("timestamptz", { nullable: true }),
+  author_id: c("uuid", { notNull: true }),
+  title: c("text", { notNull: true }),
+  content: c("text", { notNull: true }),
+  published: c("boolean", { defaultSql: "false" }),
+  published_at: c("timestamptz", { defaultSql: "now()" }),
 });
 ```
 
@@ -93,10 +93,20 @@ export default defineConfig({
 Compare your schema with the database and generate a migration:
 
 ```bash
-$ kyrage generate
--- create_table: members (id, email, name, age, createdAt) 
--- create_table: posts (id, author_id, title, content, published, published_at)
-✔ Migration file generated: migrations/1754372124127.json
+-- create_table: members
+   -> column: id ({"type":"uuid","primaryKey":true,"notNull":false "unique":false})
+   -> column: email ({"type":"text","primaryKey":false,"notNull":true,"unique":true})
+   -> column: name ({"type":"text","primaryKey":false,"notNull":false,"unique":true})
+   -> column: age ({"type":"integer","primaryKey":false,"notNull":false,"unique":false})
+   -> column: createdAt ({"type":"timestamptz","primaryKey":false,"notNull":false,"unique":false,"defaultSql":"now()"})
+-- create_table: posts
+   -> column: id ({"type":"uuid","primaryKey":true,"notNull":false,"unique":false})
+   -> column: author_id ({"type":"uuid","primaryKey":false,"notNull":true,"unique":false})
+   -> column: title ({"type":"text","primaryKey":false,"notNull":true,"unique":false})
+   -> column: content ({"type":"text","primaryKey":false,"notNull":true,"unique":false})
+   -> column: published ({"type":"boolean","primaryKey":false,"notNull":false,"unique":false,"defaultSql":"false"})
+   -> column: published_at ({"type":"timestamptz","primaryKey":false,"notNull":false,"unique":false,"defaultSql":"now()"})
+✔ Migration file generated: migrations/1754553798672.json
 ```
 
 `generate` command will fail if there is a pending migration. Use `--ignore-pending` option in that case.
@@ -107,8 +117,9 @@ You can use `--plan` option beforehand to check SQL queries that will be execute
 
 ```bash
 $ kyrage apply --plan
-create table "members" ("id" uuid not null primary key, "email" text not null unique, "name" text not null unique, "age" integer, "createdAt" timestamptz not null)
-create table "posts" ("id" uuid not null primary key, "author_id" uuid not null, "title" text not null, "content" text not null, "published" boolean not null, "published_at" timestamptz)
+create table "members" ("id" uuid primary key, "email" text not null unique, "name" text unique, "age" integer, "createdAt" timestamptz default now())
+create table "posts" ("id" uuid primary key, "author_id" uuid not null, "title" text not null, "content" text not null, "published" boolean default false, "published_at" timestamptz default now())
+
 ```
 
 If everything looks good, execute the generated migrations:
@@ -144,8 +155,9 @@ export default {
       columnName: c("type", {      // Use column function
         primaryKey?: boolean,      // PRIMARY KEY constraint
         unique?: boolean,          // UNIQUE constraint
-        nullable?: boolean,        // Allow NULL values
-        default?: any,             // Default value
+        notNull?: boolean,         // NOT NULL constraint 
+        defaultSql?: string,       // Default SQL expression
+        checkSql?: string,         // Check SQL expression
       })
     }),
     // ... more tables

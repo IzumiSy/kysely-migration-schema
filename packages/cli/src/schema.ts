@@ -1,16 +1,19 @@
 import { z } from "zod";
 
+const columnSchema = z.object({
+  type: z.string(),
+  primaryKey: z.boolean().optional().default(false),
+  notNull: z.boolean().optional().default(false),
+  unique: z.boolean().optional().default(false),
+  defaultSql: z.string().optional(),
+  checkSql: z.string().optional(),
+});
+
+export type ColumnDefinition = z.infer<typeof columnSchema>;
+
 const tableSchema = z.object({
   tableName: z.string(),
-  columns: z.record(
-    z.string(),
-    z.object({
-      type: z.string(),
-      primaryKey: z.boolean().optional().default(false),
-      notNull: z.boolean().optional().default(false),
-      unique: z.boolean().optional().default(false),
-    })
-  ),
+  columns: z.record(z.string(), columnSchema),
 });
 
 const indexSchema = z.record(
