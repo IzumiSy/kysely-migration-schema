@@ -117,8 +117,9 @@ You can use `--plan` option beforehand to check SQL queries that will be execute
 
 ```bash
 $ kyrage apply --plan
-create table "members" ("id" uuid not null primary key, "email" text not null unique, "name" text not null unique, "age" integer, "createdAt" timestamptz not null)
-create table "posts" ("id" uuid not null primary key, "author_id" uuid not null, "title" text not null, "content" text not null, "published" boolean not null, "published_at" timestamptz)
+create table "members" ("id" uuid primary key, "email" text not null unique, "name" text unique, "age" integer, "createdAt" timestamptz default now())
+create table "posts" ("id" uuid primary key, "author_id" uuid not null, "title" text not null, "content" text not null, "published" boolean default false, "published_at" timestamptz default now())
+
 ```
 
 If everything looks good, execute the generated migrations:
