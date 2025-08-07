@@ -1,50 +1,97 @@
-import { Kysely, MysqlDialect, PostgresDialect, SqliteDialect } from "kysely";
+import {
+  CompiledQuery,
+  Kysely,
+  MysqlDialect,
+  PostgresDialect,
+  SqliteDialect,
+} from "kysely";
 import { DialectEnum } from "./schema";
 import { Pool } from "pg";
 import { createPool } from "mysql2";
 import Database from "better-sqlite3";
 import { CockroachDBDialect } from "./dialects/cockroachdb";
+import { SQLCollectingDriver } from "./collector";
 
-export const getClient = async (props: {
-  database: {
-    dialect: DialectEnum;
-    connectionString: string;
-  };
-}) => {
-  const getDialect = () => {
-    switch (props.database.dialect) {
-      case "cockroachdb": {
-        return new CockroachDBDialect({
-          pool: new Pool({
-            connectionString: props.database.connectionString,
-          }),
-        });
-      }
-      case "postgres": {
-        return new PostgresDialect({
-          pool: new Pool({
-            connectionString: props.database.connectionString,
-          }),
-        });
-      }
-      case "mysql": {
-        return new MysqlDialect({
-          pool: createPool(props.database.connectionString),
-        });
-      }
-      case "sqlite": {
-        return new SqliteDialect({
-          database: new Database(props.database.connectionString),
-        });
-      }
-      default:
-        throw new Error(`Unsupported dialect: ${props.database.dialect}`);
+type DatabaseProps = {
+  dialect: DialectEnum;
+  connectionString: string;
+};
+
+const getDialect = (props: DatabaseProps) => {
+  switch (props.dialect) {
+    case "cockroachdb": {
+      return new CockroachDBDialect({
+        pool: new Pool({
+          connectionString: props.connectionString,
+        }),
+      });
     }
-  };
+    case "postgres": {
+      return new PostgresDialect({
+        pool: new Pool({
+          connectionString: props.connectionString,
+        }),
+      });
+    }
+    case "mysql": {
+      return new MysqlDialect({
+        pool: createPool(props.connectionString),
+      });
+    }
+    case "sqlite": {
+      return new SqliteDialect({
+        database: new Database(props.connectionString),
+      });
+    }
+    default:
+      throw new Error(`Unsupported dialect: ${props.dialect}`);
+  }
+};
 
-  return {
-    db: new Kysely<any>({
-      dialect: getDialect(),
-    }),
+export type GetClientProps = {
+  database: DatabaseProps;
+  options?: {
+    plan: boolean;
   };
 };
+
+export const getClient = async (props: GetClientProps) =>
+  new DBClient(props.database, props.options);
+
+class DBClient {
+  private db: Kysely<any>;
+  private plannedQueries: CompiledQuery[] = [];
+
+  constructor(
+    database: DatabaseProps,
+    options?: {
+      plan: boolean;
+    }
+  ) {
+    const dialect = getDialect(database);
+
+    this.db = new Kysely({
+      dialect: {
+        createAdapter: () => dialect.createAdapter(),
+        createDriver: () =>
+          options?.plan === true
+            ? new SQLCollectingDriver(this.plannedQueries)
+            : dialect.createDriver(),
+        createIntrospector: (db) => dialect.createIntrospector(db),
+        createQueryCompiler: () => dialect.createQueryCompiler(),
+      },
+    });
+  }
+
+  getDB() {
+    return this.db;
+  }
+
+  getPlannedQueries() {
+    return this.plannedQueries;
+  }
+
+  async [Symbol.asyncDispose]() {
+    await this.db.destroy();
+  }
+}

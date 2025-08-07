@@ -1,5 +1,11 @@
 # @izumisy/kyrage
 
+## 0.3.0
+
+### Minor Changes
+
+- 96e8647: Support plan option
+
 ## 0.2.0
 
 ### Minor Changes
