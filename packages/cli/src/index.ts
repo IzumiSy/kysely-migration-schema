@@ -1,2 +1,2 @@
 export * from "./builder";
-export { defineConfig } from "./config";
+export { defineConfig } from "./builder";

@@ -9,9 +9,16 @@ import { defineCommand, runMain } from "citty";
 import { getClient, GetClientProps } from "./client";
 import * as pkg from "../package.json";
 import { createConsola } from "consola";
-import { loadConfigFile } from "./config";
-import { ConfigValue } from "./schema";
+import { configSchema, ConfigValue } from "./schema";
 import { writeFile, mkdir } from "fs/promises";
+import { loadConfig } from "c12";
+
+const loadConfigFile = async () => {
+  const loadedConfig = await loadConfig<ConfigValue>({
+    name: "kyrage",
+  });
+  return configSchema.parse(loadedConfig.config);
+};
 
 const logger = createConsola({
   // Redirect console output to stderr that helps users to redirect planned SQL queries to a file

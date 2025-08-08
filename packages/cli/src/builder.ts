@@ -1,9 +1,10 @@
-import { ColumnDefinition } from "./schema";
+import { ColumnValue, DatabaseValue } from "./schema";
 import { ColumnDataType } from "kysely";
 
-type ColumnOptions = Partial<Omit<ColumnDefinition, "type">>;
-
-export const column = (type: ColumnDataType, options?: ColumnOptions) => ({
+export const column = (
+  type: ColumnDataType,
+  options?: Partial<Omit<ColumnValue, "type">>
+) => ({
   type,
   notNull: options?.notNull,
   primaryKey: options?.primaryKey,
@@ -12,14 +13,9 @@ export const column = (type: ColumnDataType, options?: ColumnOptions) => ({
   checkSql: options?.checkSql,
 });
 
-export const defineTable = <
-  T extends Record<
-    string,
-    {
-      type: ColumnDataType;
-    } & ColumnOptions
-  >,
->(
+type DefinedColumn = ReturnType<typeof column>;
+
+export const defineTable = <T extends Record<string, DefinedColumn>>(
   name: string,
   columns: T
 ) => {
@@ -30,3 +26,8 @@ export const defineTable = <
 };
 
 export type DefinedTable = ReturnType<typeof defineTable>;
+
+export const defineConfig = (config: {
+  database: DatabaseValue;
+  tables: DefinedTable[];
+}) => config;
