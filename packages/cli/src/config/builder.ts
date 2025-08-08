@@ -1,4 +1,5 @@
-import { ColumnValue, DatabaseValue } from "./schema";
+
+import { ColumnValue, DatabaseValue } from "../schema";
 import { ColumnDataType } from "kysely";
 
 export const column = (

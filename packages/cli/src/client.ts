@@ -56,31 +56,50 @@ export type GetClientProps = {
 };
 
 export const getClient = async (props: GetClientProps) =>
-  new DBClient(props.database, props.options);
+  new DBClient({ databaseProps: props.database, options: props.options });
 
-class DBClient {
+type DBClientConstructorProps = {
+  databaseProps: DatabaseProps;
+  options?: {
+    plan: boolean;
+  };
+};
+
+export class DBClient {
   private db: Kysely<any>;
   private plannedQueries: CompiledQuery[] = [];
 
-  constructor(
-    database: DatabaseProps,
-    options?: {
-      plan: boolean;
-    }
-  ) {
-    const dialect = getDialect(database);
+  constructor(private constructorProps: DBClientConstructorProps) {
+    this.db = this.buildClient({
+      databaseProps: this.constructorProps.databaseProps,
+      options: this.constructorProps.options,
+    });
+  }
 
-    this.db = new Kysely({
+  private buildClient(props: DBClientConstructorProps) {
+    const dialect = getDialect(props.databaseProps);
+
+    return new Kysely({
       dialect: {
         createAdapter: () => dialect.createAdapter(),
         createDriver: () =>
-          options?.plan === true
+          props.options?.plan === true
             ? new SQLCollectingDriver(this.plannedQueries)
             : dialect.createDriver(),
         createIntrospector: (db) => dialect.createIntrospector(db),
         createQueryCompiler: () => dialect.createQueryCompiler(),
       },
     });
+  }
+
+  async switch(options: DBClientConstructorProps["options"]) {
+    await this.db.destroy();
+
+    this.db = this.buildClient({
+      databaseProps: this.constructorProps.databaseProps,
+      options,
+    });
+    this.plannedQueries = [];
   }
 
   getDB() {
