@@ -1,10 +1,9 @@
-import { afterAll, beforeAll, describe, it } from "vitest";
+import { afterAll, beforeAll, describe, it, expect } from "vitest";
 import {
   PostgreSqlContainer,
   StartedPostgreSqlContainer,
 } from "@testcontainers/postgresql";
 import { getClient } from "./client";
-import { sql } from "kysely";
 
 let container: StartedPostgreSqlContainer;
 
@@ -12,22 +11,41 @@ beforeAll(async () => {
   container = await new PostgreSqlContainer("postgres:14").start();
 });
 
-describe("PostgreSQL Container", () => {
-  it("should create DBClient", async () => {
+describe("DBClient", () => {
+  it("should be switchable to plan mode", async () => {
     const connectionString = container.getConnectionUri();
 
-    const client = await getClient({
+    await using client = await getClient({
       database: {
         dialect: "postgres",
         connectionString,
       },
     });
 
-    const db = client.getDB();
+    const actualDB = client.getDB();
 
-    const r = await sql`select 1`.execute(db);
+    await actualDB.schema
+      .createTable("test_table")
+      .addColumn("id", "serial", (col) => col.primaryKey())
+      .execute();
 
-    console.log(r);
+    const tablesBefore = await actualDB.introspection.getTables();
+
+    expect(tablesBefore).toHaveLength(1);
+    expect(tablesBefore[0].name).toBe("test_table");
+
+    await client.switch({
+      plan: true,
+    });
+
+    const plannedDB = client.getDB();
+
+    await plannedDB.schema.dropTable("test_table").execute();
+
+    const tablesAfter = await plannedDB.introspection.getTables();
+
+    expect(tablesAfter).toHaveLength(1);
+    expect(tablesAfter[0].name).toBe("test_table");
   });
 });
 
