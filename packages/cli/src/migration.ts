@@ -9,12 +9,11 @@ import { TableDiff } from "./diff";
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
 import { migrationSchema } from "./schema";
-import { DBClient } from "./client";
 
 export const migrationDirName = "migrations";
 
 type CreateMigrationProviderProps = {
-  client: DBClient;
+  db: Kysely<any>;
   options: {
     plan: boolean;
   };
@@ -50,10 +49,7 @@ export const createMigrationProvider = (
       migrationFiles.forEach((migration) => {
         migrations[migration.id] = {
           up: async () => {
-            await using db = props.client.getDB({
-              plan: props.options.plan,
-            });
-            await buildMigrationFromDiff(db, migration.diff);
+            await buildMigrationFromDiff(props.db, migration.diff);
           },
         };
       });

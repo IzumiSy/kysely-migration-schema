@@ -9,11 +9,13 @@ export const runApply = async (props: {
     plan: boolean;
   };
 }) => {
-  await using db = props.client.getDB();
+  await using db = props.client.getDB({
+    plan: props.options.plan,
+  });
   const migrator = new Migrator({
     db,
     provider: createMigrationProvider({
-      client: props.client,
+      db,
       options: {
         plan: props.options.plan,
       },

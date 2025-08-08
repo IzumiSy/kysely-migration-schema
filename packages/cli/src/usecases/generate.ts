@@ -16,7 +16,7 @@ export const runGenerate = async (props: {
     plan: boolean;
   };
 }) => {
-  const db = props.client.getDB();
+  await using db = props.client.getDB();
   const loadedConfig = props.config;
 
   if (!props.options.ignorePending) {
