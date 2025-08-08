@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, it, expect } from "vitest";
+import { afterAll, beforeAll, describe, it } from "vitest";
 import {
   StartedPostgreSqlContainer,
   PostgreSqlContainer,
@@ -6,7 +6,8 @@ import {
 import { getClient } from "../client";
 import { runGenerate } from "./generate";
 import { column, defineTable } from "../config/builder";
-import { defineConfig } from "../config/loader";
+import { defineConfig } from "../config/builder";
+import { configSchema } from "../schema";
 
 let container: StartedPostgreSqlContainer;
 
@@ -16,17 +17,19 @@ beforeAll(async () => {
 
 describe("generate usecase", () => {
   it("should generate a migration file", async () => {
-    const config = defineConfig({
-      database: {
-        dialect: "postgres" as const,
-        connectionString: container.getConnectionUri(),
-      },
-      tables: [
-        defineTable("members", {
-          id: column("uuid", { primaryKey: true }),
-        }),
-      ],
-    });
+    const config = configSchema.parse(
+      defineConfig({
+        database: {
+          dialect: "postgres" as const,
+          connectionString: container.getConnectionUri(),
+        },
+        tables: [
+          defineTable("members", {
+            id: column("uuid", { primaryKey: true }),
+          }),
+        ],
+      })
+    );
     const client = getClient({
       database: config.database,
     });
