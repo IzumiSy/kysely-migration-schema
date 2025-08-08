@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { diffTables, Tables } from "../diff";
+import { diffTables, Tables } from "./diff";
 
 describe("diffTables", () => {
   it("should detect added and removed tables", () => {

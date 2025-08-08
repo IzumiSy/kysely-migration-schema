@@ -25,6 +25,7 @@ export const runApply = async (props: {
     await migrator.migrateToLatest();
 
   const plannedQueries = props.client.getPlannedQueries();
+  console.log("Planned Queries:", plannedQueries);
   if (plannedQueries.length > 0) {
     plannedQueries.forEach((query) => {
       console.log(query.sql);
