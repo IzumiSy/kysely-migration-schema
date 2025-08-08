@@ -9,12 +9,15 @@ import { TableDiff } from "./diff";
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
 import { migrationSchema } from "./schema";
+import { DBClient } from "./client";
 
 export const migrationDirName = "migrations";
 
 type CreateMigrationProviderProps = {
-  db: Kysely<unknown>;
-  migrationDirName: string;
+  client: DBClient;
+  options: {
+    plan: boolean;
+  };
 };
 
 export const readMigrationFiles = async () => {
@@ -47,7 +50,10 @@ export const createMigrationProvider = (
       migrationFiles.forEach((migration) => {
         migrations[migration.id] = {
           up: async () => {
-            await buildMigrationFromDiff(props.db, migration.diff);
+            await using db = props.client.getDB({
+              plan: props.options.plan,
+            });
+            await buildMigrationFromDiff(db, migration.diff);
           },
         };
       });
@@ -58,7 +64,7 @@ export const createMigrationProvider = (
 };
 
 export async function buildMigrationFromDiff(
-  db: Kysely<unknown>,
+  db: Kysely<any>,
   diff: TableDiff
 ): Promise<void> {
   // 1. 追加テーブル

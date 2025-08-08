@@ -1,6 +1,6 @@
 import { Migrator } from "kysely";
 import { DBClient } from "../client";
-import { createMigrationProvider, migrationDirName } from "../migration";
+import { createMigrationProvider } from "../migration";
 import { logger } from "../logger";
 
 export const runApply = async (props: {
@@ -9,15 +9,14 @@ export const runApply = async (props: {
     plan: boolean;
   };
 }) => {
-  await props.client.switch({
-    plan: props.options.plan,
-  });
-  const db = props.client.getDB();
+  await using db = props.client.getDB();
   const migrator = new Migrator({
     db,
     provider: createMigrationProvider({
-      db,
-      migrationDirName,
+      client: props.client,
+      options: {
+        plan: props.options.plan,
+      },
     }),
   });
 
@@ -25,7 +24,6 @@ export const runApply = async (props: {
     await migrator.migrateToLatest();
 
   const plannedQueries = props.client.getPlannedQueries();
-  console.log("Planned Queries:", plannedQueries);
   if (plannedQueries.length > 0) {
     plannedQueries.forEach((query) => {
       console.log(query.sql);

@@ -39,7 +39,7 @@ const generateCmd = defineCommand({
   run: async (ctx) => {
     try {
       const loadedConfig = await loadConfigFile();
-      await using client = await getClient({
+      const client = getClient({
         database: loadedConfig.database,
       });
 
@@ -75,7 +75,7 @@ const applyCmd = defineCommand({
   run: async (ctx) => {
     try {
       const loadedConfig = await loadConfigFile();
-      await using client = await getClient({
+      const client = getClient({
         database: loadedConfig.database,
       });
 
