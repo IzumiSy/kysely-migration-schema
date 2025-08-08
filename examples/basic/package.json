@@ -1,8 +1,14 @@
 {
   "name": "basic",
   "private": true,
+  "type": "module",
+  "scripts": {
+    "type-check": "tsc --noEmit --pretty"
+  },
   "devDependencies": {
     "@izumisy/kyrage": "workspace:^",
-    "kysely": "^0.28.4"
+    "@types/node": "^24.2.0",
+    "kysely": "^0.28.4",
+    "typescript": "^5.9.2"
   }
 }

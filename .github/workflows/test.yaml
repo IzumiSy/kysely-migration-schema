@@ -17,8 +17,5 @@ jobs:
           node-version-file: './package.json'
       - run: pnpm install
       - run: pnpm type-check
-        working-directory: packages/cli
       - run: pnpm test
-        working-directory: packages/cli
       - run: pnpm build
-        working-directory: packages/cli
