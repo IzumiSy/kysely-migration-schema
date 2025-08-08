@@ -12,38 +12,43 @@ beforeAll(async () => {
 });
 
 describe("DBClient", () => {
-  it("should be switchable to plan mode", async () => {
-    const connectionString = container.getConnectionUri();
-
+  it("should be switchable to plan mode and able to be back", async () => {
     await using client = await getClient({
       database: {
         dialect: "postgres",
-        connectionString,
+        connectionString: container.getConnectionUri(),
       },
     });
 
+    /**
+     * Check that the test table is created in non-plan mode
+     */
     const actualDB = client.getDB();
-
     await actualDB.schema
       .createTable("test_table")
       .addColumn("id", "serial", (col) => col.primaryKey())
       .execute();
-
     const tablesBefore = await actualDB.introspection.getTables();
-
     expect(tablesBefore).toHaveLength(1);
     expect(tablesBefore[0].name).toBe("test_table");
 
+    /**
+     * Check that the test table is not created in plan mode
+     */
     await client.switch({
       plan: true,
     });
-
     const plannedDB = client.getDB();
-
     await plannedDB.schema.dropTable("test_table").execute();
 
-    const tablesAfter = await plannedDB.introspection.getTables();
-
+    /**
+     * Check that tables were not affected in the plan mode
+     */
+    await client.switch({
+      plan: false,
+    });
+    const finalDB = client.getDB();
+    const tablesAfter = await finalDB.introspection.getTables();
     expect(tablesAfter).toHaveLength(1);
     expect(tablesAfter[0].name).toBe("test_table");
   });
