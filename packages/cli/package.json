@@ -35,10 +35,12 @@
   },
   "devDependencies": {
     "@swc/core": "^1.13.3",
+    "@testcontainers/postgresql": "^11.5.1",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.2.0",
     "@types/pg": "^8.15.5",
     "prettier": "^3.6.2",
+    "testcontainers": "^11.5.1",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
