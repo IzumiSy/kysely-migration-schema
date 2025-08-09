@@ -1,9 +1,7 @@
-import { describe, it, vi, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { runGenerate } from "../src/usecases/generate";
-import { readdir } from "fs/promises";
-import { runApply } from "../src/usecases/apply";
-import { setupTestDB } from "./helper";
 import { defineTable, column } from "../src/config/builder";
+import { setupTestDB } from "./helper";
 
 vi.mock("fs/promises", async () => {
   const memfs = await import("memfs");
@@ -19,26 +17,13 @@ const { config, client } = await setupTestDB({
 });
 
 describe("generate and apply", () => {
-  it("should generate a migration file", async () => {
+  it("should update DB immediately with generate command with apply option", async () => {
     await runGenerate({
       client,
       config,
       options: {
         ignorePending: false,
-        apply: false,
-        plan: false,
-      },
-    });
-
-    const files = await readdir("migrations");
-
-    expect(files).toHaveLength(1);
-  });
-
-  it("should apply the migration", async () => {
-    await runApply({
-      client,
-      options: {
+        apply: true,
         plan: false,
       },
     });
