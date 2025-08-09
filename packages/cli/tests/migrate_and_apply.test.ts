@@ -38,6 +38,10 @@ beforeAll(async () => {
   client = getClient({
     database: config.database,
   });
+
+  return async () => {
+    await container.stop();
+  };
 });
 
 describe("generate and apply", () => {
@@ -80,8 +84,4 @@ describe("generate and apply", () => {
       })
     );
   });
-});
-
-afterAll(async () => {
-  await container.stop();
 });
