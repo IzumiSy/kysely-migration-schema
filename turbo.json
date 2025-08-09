@@ -8,7 +8,9 @@
     "type-check": {
       "dependsOn": ["^build"]
     },
-    "test": {},
+    "test": {
+      "cache": false
+    },
     "dev": {
       "persistent": true,
       "cache": false,

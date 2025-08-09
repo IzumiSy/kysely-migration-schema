@@ -55,26 +55,30 @@ export type GetClientProps = {
   };
 };
 
-export const getClient = async (props: GetClientProps) =>
-  new DBClient(props.database, props.options);
+export const getClient = (props: GetClientProps) =>
+  new DBClient({ databaseProps: props.database, options: props.options });
 
-class DBClient {
-  private db: Kysely<any>;
+type DBClientConstructorProps = {
+  databaseProps: DatabaseProps;
+  options?: {
+    plan: boolean;
+  };
+};
+
+export class DBClient {
   private plannedQueries: CompiledQuery[] = [];
 
-  constructor(
-    database: DatabaseProps,
-    options?: {
-      plan: boolean;
-    }
-  ) {
-    const dialect = getDialect(database);
+  constructor(private constructorProps: DBClientConstructorProps) {}
 
-    this.db = new Kysely({
+  getDB(options?: DBClientConstructorProps["options"]) {
+    const dialect = getDialect(this.constructorProps.databaseProps);
+    const isPlan = options?.plan === true;
+
+    return new Kysely({
       dialect: {
         createAdapter: () => dialect.createAdapter(),
         createDriver: () =>
-          options?.plan === true
+          isPlan
             ? new SQLCollectingDriver(this.plannedQueries)
             : dialect.createDriver(),
         createIntrospector: (db) => dialect.createIntrospector(db),
@@ -83,15 +87,7 @@ class DBClient {
     });
   }
 
-  getDB() {
-    return this.db;
-  }
-
   getPlannedQueries() {
     return this.plannedQueries;
-  }
-
-  async [Symbol.asyncDispose]() {
-    await this.db.destroy();
   }
 }

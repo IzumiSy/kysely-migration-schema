@@ -13,8 +13,10 @@ import { migrationSchema } from "./schema";
 export const migrationDirName = "migrations";
 
 type CreateMigrationProviderProps = {
-  db: Kysely<unknown>;
-  migrationDirName: string;
+  db: Kysely<any>;
+  options: {
+    plan: boolean;
+  };
 };
 
 export const readMigrationFiles = async () => {
@@ -58,7 +60,7 @@ export const createMigrationProvider = (
 };
 
 export async function buildMigrationFromDiff(
-  db: Kysely<unknown>,
+  db: Kysely<any>,
   diff: TableDiff
 ): Promise<void> {
   // 1. 追加テーブル

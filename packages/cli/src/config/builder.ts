@@ -1,4 +1,4 @@
-import { ColumnValue, DatabaseValue } from "./schema";
+import { ColumnValue, DatabaseValue } from "../schema";
 import { ColumnDataType } from "kysely";
 
 export const column = (
@@ -26,6 +26,7 @@ export const defineTable = <T extends Record<string, DefinedColumn>>(
 };
 
 export type DefinedTable = ReturnType<typeof defineTable>;
+export type DefinedTables = Array<DefinedTable>;
 
 export const defineConfig = (config: {
   database: DatabaseValue;

@@ -1,2 +1,1 @@
-export * from "./builder";
-export { defineConfig } from "./builder";
+export * from "./config/builder";
